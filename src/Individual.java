@@ -1,10 +1,11 @@
+import org.json.JSONObject;
+
 import java.util.*;
-import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 
 public class Individual implements Comparable<Individual>{
-    ChiSquaredDistribution childrenUtility = new ChiSquaredDistribution(5);
     double currentUtility;
     int age;
+    private int id;
     Integer family;
     int[] goods;
     int[] goodsSelf;
@@ -20,9 +21,10 @@ public class Individual implements Comparable<Individual>{
     HashSet<Individual> siblings;
     HashSet<Individual> children;
 
-    public Individual(Random rand, Integer familyNumber, int good1, int good2) {
+    public Individual(Random rand, Integer familyNumber, int good1, int good2, int i) {
         family = familyNumber;
         age = 0;
+        id = i;
         skills = rand.nextInt(5,10);
         altruism = Math.min(rand.nextGaussian(0.95, 0.05), 1);
         charity = rand.nextDouble(1.0);
@@ -36,12 +38,13 @@ public class Individual implements Comparable<Individual>{
         goodsCharity = new HashMap<>();
         children = new HashSet<>();
     }
-    public Individual(Random rand, Integer familyNumber, Individual p, int good1, int good2) {
+    public Individual(Random rand, Integer familyNumber, Individual p, int good1, int good2, int i) {
         family = familyNumber;
         parent = p;
         age = 0;
+        id = i;
         skills = rand.nextInt(Math.max(parent.skills - 5, 1), Math.min(parent.skills + 5, 10));
-        altruism = Math.min(rand.nextGaussian(parent.altruism, 0.05), 1);
+        altruism = Math.min(rand.nextGaussian(parent.altruism, 0.01), 1);
         charity = rand.nextDouble(Math.max(parent.charity - 0.2, 0.0), Math.min(parent.charity + 0.2, 1.0));
         impatience = Math.min(rand.nextGaussian(parent.impatience, 0.05), 1);
         double applePreference = rand.nextDouble(1.0);
@@ -54,8 +57,8 @@ public class Individual implements Comparable<Individual>{
         children = new HashSet<>();
     }
     public void addGoods(int apples, int oranges) {
-        goodsSelf[0] += apples;
-        goodsSelf[1] += oranges;
+        goods[0] += apples;
+        goods[1] += oranges;
         currentUtility += utilityDiff(apples, oranges);
 
 
@@ -112,13 +115,14 @@ public class Individual implements Comparable<Individual>{
         if (economy.size() > 1) {
             charityCase = economy.findLeastUtils(this);
         }
-        System.out.println("self utility: " + utility);
-        System.out.println("future consumption: " + goodsFuture[0] + " " + goodsFuture[1]);
-        System.out.println("charity: " + charity * charityCase.utilityDiff(good1, good2));
-        System.out.println("Family: " + altruism * familyMember.utilityDiff(good1, good2));
-        if ((1 + (skills / impatience )) * goodsSelf[0] > skills * goods[0] + goodsFuture[0] |  (skills + 1) * goodsSelf[1] > skills * goods[1] + goodsFuture[1] ) {
+        //System.out.println("self utility: " + utility);
+        //System.out.println("future consumption: " + goodsFuture[0] + " " + goodsFuture[1]);
+        //System.out.println("charity: " + charity * charityCase.utilityDiff(good1, good2));
+        //System.out.println("Family: " + altruism * familyMember.utilityDiff(good1, good2));
+        if (consumptionCheck()) {
             //System.out.println("Production");
             decision = "Production";
+            utility = Double.POSITIVE_INFINITY;
         }
         if (altruism * familyMember.utilityDiff(good1, good2) > utility) {
             //System.out.println("Family");
@@ -157,17 +161,18 @@ public class Individual implements Comparable<Individual>{
         int oranges = goods[1];
         //System.out.println(goodsSelf[0] + " " + goodsSelf[1]);
         while (apples > 0 | oranges > 0) {
-            System.out.println((1 + (skills / impatience )) * goodsSelf[0] + " > or < " + ((skills / impatience) * (goods[0]) + goodsFuture[0]));
-            System.out.println((skills + 1) * goodsSelf[1] + " > or < " + (skills * (goods[1]) + goodsFuture[1]));
-            System.out.println(goods[0] + " " + goods[1]);
-            System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5) + " for bundle of goods " + goodsSelf[0] + " " +  goodsSelf[1]);
-            if ((oranges >= 5 & apples >= 5) & (utilityChildDiff()) > 5 & age >= 2) {
+            //System.out.println((1 + (skills / impatience )) * goodsSelf[0] + " > or < " + ((skills / impatience) * (goods[0]) + goodsFuture[0]));
+            //System.out.println((skills + 1) * goodsSelf[1] + " > or < " + (skills * (goods[1]) + goodsFuture[1]));
+            //System.out.println(goods[0] + " " + goods[1]);
+            System.out.println("child utility: " + utilityChildDiff());
+            if ((oranges >= 10 & apples >= 10) & (utilityChildDiff()) > 10 & age >= 2) {
                 //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
-                Individual child = new Individual(economy.random, family,this, 5, 5);
+                //System.out.println("family size: " + economy.get(family).size());
+                Individual child = new Individual(economy.random, family,this, 10, 10, economy.get(family).size());
                 addChild(child);
                 economy.add(family, child);
-                apples -= 5;
-                oranges -= 5;
+                apples -= 10;
+                oranges -= 10;
                 currentUtility += utilityChildDiff();
 
             }
@@ -185,6 +190,7 @@ public class Individual implements Comparable<Individual>{
             //System.out.println(apples + " " + oranges + " " + utilityChildDiff() + " " + utilityDiff(5, 5));
 
         }
+
         goods = goodsFuture;
     }
     private double utilitySelf(int good1, int good2) {
@@ -209,7 +215,7 @@ public class Individual implements Comparable<Individual>{
         //System.out.println("z value: " + ((double) children.size() + 1.0 - childrenUtility.getNumericalMean())/Math.pow(childrenUtility.getNumericalVariance(), 0.5));
         //System.out.println("Random Chi Values: " + childrenUtility.density(5.0) + " " + childrenUtility.density(3.00));
         //System.out.println("child utility: " + (altruism * 5 + 5 * childrenUtility.density((double) children.size() + 1.0)));
-        return altruism  * (ln(children.size() + 1) - ln(children.size()) + 5);
+        return altruism  * (ln(children.size() + 1) - ln(children.size()) + 10);
     }
     public double getCurrentUtility() {
         return currentUtility;
@@ -217,6 +223,13 @@ public class Individual implements Comparable<Individual>{
     private void addChild(Individual child) {
         this.children.add(child);
 
+    }
+    private boolean consumptionCheck() {
+        double denom = 0.0;
+        for (int i = 0; i < 5 - age; i++) {
+            denom += Math.pow(impatience / skills, i);
+        }
+        return goodsSelf[0] > goods[0] / denom | goodsSelf[1] > goods[1] / denom;
     }
     public void removeSelf() {
         if ((goods[0] > 0 | goods[1] > 0) & children.size() > 0) {
@@ -227,6 +240,21 @@ public class Individual implements Comparable<Individual>{
     }
     public void addPeriod() {
         age++;
+    }
+    public void addInfo(JSONObject familyJson) {
+        familyJson.put(String.valueOf(id), new JSONObject());
+        familyJson.getJSONObject(String.valueOf(id)).put("id", id);
+        familyJson.getJSONObject(String.valueOf(id)).put("children", children.size());
+        familyJson.getJSONObject(String.valueOf(id)).put("altruism", altruism);
+        familyJson.getJSONObject(String.valueOf(id)).put("charity", charity);
+        familyJson.getJSONObject(String.valueOf(id)).put("impatience", impatience);
+        familyJson.getJSONObject(String.valueOf(id)).put("skills", skills);
+        familyJson.getJSONObject(String.valueOf(id)).put("good1 pref", preferences[0]);
+        familyJson.getJSONObject(String.valueOf(id)).put("good2 pref", preferences[1]);
+        familyJson.getJSONObject(String.valueOf(id)).put("good1", goods[0]);
+        familyJson.getJSONObject(String.valueOf(id)).put("good2", goods[1]);
+        familyJson.getJSONObject(String.valueOf(id)).put("future good1", goodsFuture[0]);
+        familyJson.getJSONObject(String.valueOf(id)).put("future good2", goodsFuture[1]);
     }
     @Override
     public int compareTo(Individual o) {
