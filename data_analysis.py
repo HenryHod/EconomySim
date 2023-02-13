@@ -12,7 +12,9 @@ for period in periods_dict.keys():
                 ind_dict["Family Size"] = periods_dict[period]["families"][family]["size"]
                 ind_dict["Period"] = int(period)
                 df.loc[len(df)] = ind_dict
-print(df.sort_values(["Period", "Family"]))
+print(df.drop(["skills", "future good1", "future good2"], axis =1).sort_values(["Period", "Family"]))
+
+
 
 
 

@@ -84,6 +84,7 @@ public class Economy {
     }
     public void add(Integer family,Individual i) {
         families.get(family).add(i);
+        System.out.println(families.get(family).size());
         jsonObject.getJSONObject("periods").getJSONObject(String.valueOf(periodCount))
                 .getJSONObject("families").getJSONObject(String.valueOf(family))
                 .put("size", families.get(family).size());
@@ -92,7 +93,7 @@ public class Economy {
         return families.get(i);
     }
     public int size() {
-        return families.size();
+        return families.keySet().stream().mapToInt(key -> families.get(key).size()).sum();
     }
     public void print() {
         System.out.println(families.keySet().stream().mapToInt(key -> families.get(key).size()).sum());

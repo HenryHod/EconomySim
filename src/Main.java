@@ -11,8 +11,8 @@ public class Main {
         JSONObject root = new JSONObject(new String(Files.readAllBytes(Paths.get("EconomySimData.json"))));
         JSONObject val_older = root.getJSONObject("periods");
         Random random = new Random();
-        Economy economy = new Economy(100, random, jo);
-        for (int i = 0; i < 100; i++) {
+        Economy economy = new Economy(1, random, jo);
+        for (int i = 0; i < 10; i++) {
             economy.period();
             economy.print();
         }

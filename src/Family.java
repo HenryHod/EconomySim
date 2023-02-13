@@ -1,3 +1,4 @@
+import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -7,6 +8,11 @@ public class Family implements Iterable<Individual>{
 
         @Override
         public int compare(Individual o1, Individual o2) {
+            if (o1.related(o2)) {
+                if (o1.isChild(o2) | o1.isGrandchild()) {
+                    return (int) Double.POSITIVE_INFINITY;
+                }
+            }
             return (int) (100 * o1.getCurrentUtility() - 100 * o2.getCurrentUtility());
         }
     }
