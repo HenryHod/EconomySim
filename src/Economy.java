@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Economy {
     private int[] totalGoods;
-    private JSONObject jsonObject;
+    public JSONObject jsonObject;
     private int periodCount;
     private JSONObject currentPeriod;
     public Random random;
@@ -20,7 +20,7 @@ public class Economy {
         for (int i = 0; i < size; i++) {
             int apples = 100; //rand.nextInt(1, 100);
             int oranges = 100; //rand.nextInt(1, 100);
-            families.put(i, new Family( new Individual(rand, i, apples, oranges)));
+            families.put(i, new Family( new Individual(rand, i, apples, oranges, 0)));
             totalGoods[0] += apples;
             totalGoods[1] += oranges;
             currentPeriod.getJSONObject("families").put(String.valueOf(i), new JSONObject("{\"size\": 1 }"));
@@ -56,10 +56,16 @@ public class Economy {
                     }
                     //System.out.println("family left:" + families.get(family).size());
                 } else {
-                    currentPeriod.getJSONObject("families").put(String.valueOf(family), new JSONObject().put("size", families.get(family).size()));
+                    if (!currentPeriod.getJSONObject("families").keySet().contains(String.valueOf(family))) {
+                        currentPeriod.getJSONObject("families").put(String.valueOf(family), new JSONObject().put("size", families.get(family).size()));
+                    }
+                    if (!currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).keySet().contains("individuals")) {
+                        currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).put("individuals", new JSONObject());
+                    }
                     if (familyMember.age >= 1) {
                         familyMember.individualTurn(this);
                     }
+                    familyMember.addInfo(currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).getJSONObject("individuals"));
                     currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).put("utility", families.get(family).totalUtility());
                     int[] familyGoods = families.get(family).totalGoods();
                     currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).put("good1", familyGoods[0]);
