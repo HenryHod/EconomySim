@@ -93,7 +93,7 @@ public class Economy {
         return families.get(i);
     }
     public int size() {
-        return families.keySet().stream().mapToInt(key -> families.get(key).size()).sum();
+        return families.size();
     }
     public void print() {
         System.out.println(families.keySet().stream().mapToInt(key -> families.get(key).size()).sum());

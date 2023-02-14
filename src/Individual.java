@@ -115,10 +115,10 @@ public class Individual implements Comparable<Individual>{
         if (economy.size() > 1) {
             charityCase = economy.findLeastUtils(this);
         }
-        //System.out.println("self utility: " + utility);
+        System.out.println("self utility: " + utility);
         //System.out.println("future consumption: " + goodsFuture[0] + " " + goodsFuture[1]);
         //System.out.println("charity: " + charity * charityCase.utilityDiff(good1, good2));
-        //System.out.println("Family: " + altruism * familyMember.utilityDiff(good1, good2));
+        System.out.println("Family: " + altruism * familyMember.utilityDiff(good1, good2));
         if (consumptionCheck()) {
             //System.out.println("Production");
             decision = "Production";
@@ -155,7 +155,7 @@ public class Individual implements Comparable<Individual>{
         currentUtility += utility;
     }
     public void individualTurn(Economy economy) {
-        currentUtility = 0;
+        double newCurrentUtility = 0;
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
         int apples = goods[0];
@@ -176,7 +176,7 @@ public class Individual implements Comparable<Individual>{
                 System.out.println("After: " + economy.get(family).size());
                 apples -= 10;
                 oranges -= 10;
-                currentUtility += utilityChildDiff();
+                newCurrentUtility += utilityChildDiff();
 
             }
             if (apples > 0 & oranges > 0) {

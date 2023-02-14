@@ -3,13 +3,17 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import static java.lang.Double.NEGATIVE_INFINITY;
+
 public class Family implements Iterable<Individual>{
     public class IndividualComparator implements Comparator<Individual> {
 
         @Override
         public int compare(Individual o1, Individual o2) {
             if (o1.related(o2)) {
-                if (o1.isChild(o2) | o1.isGrandchild()) {
+                if (o1.isChild(o2) | o1.isGrandchild(o2)) {
+                    return (int) NEGATIVE_INFINITY;
+                } else if (o2.isChild(o1) | o2.isGrandchild(o1)) {
                     return (int) Double.POSITIVE_INFINITY;
                 }
             }
