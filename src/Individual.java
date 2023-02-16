@@ -115,18 +115,19 @@ public class Individual implements Comparable<Individual>{
         if (economy.size() > 1) {
             charityCase = economy.findLeastUtils(this);
         }
-        //System.out.println("self utility: " + utility);
+        System.out.println("self utility: " + utility);
         //System.out.println("future consumption: " + goodsFuture[0] + " " + goodsFuture[1]);
         //System.out.println("charity: " + charity * charityCase.utilityDiff(good1, good2));
         //System.out.println("Family: " + altruism * familyMember.utilityDiff(good1, good2));
-        if (consumptionCheck()) {
+        if (impatience * utilityFutDiff(good1, good2) > utility) {
             //System.out.println("Production");
             decision = "Production";
-            utility = Double.POSITIVE_INFINITY;
+            utility += impatience * utilityFutDiff(good1, good2);
         }
         if (altruism * familyMember.utilityDiff(good1, good2) > utility) {
             //System.out.println("Family");
             decision = "Family";
+            utility += altruism * familyMember.utilityDiff(good1, good2);
         }
         if (charity * charityCase.utilityDiff(good1, good2) > utility) {
             //System.out.println("Charity");
@@ -155,7 +156,6 @@ public class Individual implements Comparable<Individual>{
         currentUtility += utility;
     }
     public void individualTurn(Economy economy) {
-        double newCurrentUtility = 0;
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
         int apples = goods[0];
@@ -165,8 +165,8 @@ public class Individual implements Comparable<Individual>{
             //System.out.println((1 + (skills / impatience )) * goodsSelf[0] + " > or < " + ((skills / impatience) * (goods[0]) + goodsFuture[0]));
             //System.out.println((skills + 1) * goodsSelf[1] + " > or < " + (skills * (goods[1]) + goodsFuture[1]));
             //System.out.println(goods[0] + " " + goods[1]);
-            //System.out.println("child utility: " + utilityChildDiff());
-            if ((oranges >= 10 & apples >= 10) & ((utilityChildDiff()) > 10 & age >= 2)) {
+            System.out.println("child utility: " + altruism * basicUtility(10, 10));
+            if ((oranges >= 10 & apples >= 10) & (altruism * basicUtility(10, 10) > utilitySelf(10, 10) & age >= 2)) {
                 //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
                 //System.out.println("family size: " + economy.get(family).size());
                 //System.out.println("Before: " + economy.get(family).size());
@@ -176,7 +176,7 @@ public class Individual implements Comparable<Individual>{
                 //System.out.println("After: " + economy.get(family).size());
                 apples -= 10;
                 oranges -= 10;
-                newCurrentUtility += utilityChildDiff();
+                currentUtility += utilityChildDiff();
 
             }
             if (apples > 0 & oranges > 0) {
@@ -197,18 +197,18 @@ public class Individual implements Comparable<Individual>{
         goods = goodsFuture;
     }
     private double utilitySelf(int good1, int good2) {
-        return Math.pow(goodsSelf[0] + good1 + 1, preferences[0]) * Math.pow(goodsSelf[1] + good2 + 1, preferences[1]) - 1;
+        return 10 * Math.pow(goodsSelf[0] + good1 + 1, preferences[0]) * Math.pow(goodsSelf[1] + good2 + 1, preferences[1]) - 1;
     }
     private double utilitySelf() {
-            return Math.pow(goodsSelf[0] + 1, preferences[0]) * Math.pow(goodsSelf[1] + 1, preferences[1]) - 1;
+            return 10 * Math.pow(goodsSelf[0] + 1, preferences[0]) * Math.pow(goodsSelf[1] + 1, preferences[1]) - 1;
     }
     private double utilityDiff(int good1, int good2) {
         //System.out.println(utilitySelf(good1, good2) + " " + utilitySelf());
         return (utilitySelf(good1, good2) - utilitySelf());
     }
     private double utilityFutDiff(int good1, int good2) {
-        double previous = (Math.pow(goodsFuture[0] + 1, preferences[0]) * Math.pow(goodsFuture[1] + 1, preferences[1]) - 1);
-        double current = (Math.pow(goodsFuture[0] + good1 * skills + 2, preferences[0]) * Math.pow(goodsFuture[1] + good2 * skills + 1, preferences[1]) - 1);
+        double previous = 10 * (Math.pow(goodsFuture[0] + 1, preferences[0]) * Math.pow(goodsFuture[1] + 1, preferences[1]) - 1);
+        double current = 10 * (Math.pow(goodsFuture[0] + good1 * skills + 2, preferences[0]) * Math.pow(goodsFuture[1] + good2 * skills + 1, preferences[1]) - 1);
         return (current - previous)/skills;
     }
     private double ln(int x) {
@@ -277,6 +277,9 @@ public class Individual implements Comparable<Individual>{
     }
     public double potentialUtility() {
         return Math.pow(goods[0] + 1, preferences[0]) * Math.pow(goods[1] + 1, preferences[1]) - 1;
+    }
+    public double basicUtility(int good1, int good2) {
+        return 10 * Math.pow(good1 + 1, preferences[0]) * Math.pow(good2 + 1, preferences[1]);
     }
     @Override
     public int compareTo(Individual o) {
