@@ -25,10 +25,10 @@ public class Individual implements Comparable<Individual>{
         family = familyNumber;
         age = 0;
         id = i;
-        skills = rand.nextInt(5,10);
-        altruism = 0.94;//Math.min(rand.nextGaussian(0.925, 0.05), 1);
+        skills = rand.nextInt(2,5);
+        altruism = Math.min(rand.nextGaussian(0.85, 0.05), 0.99);
         charity = rand.nextDouble(1.0);
-        impatience = 0.9;//Math.min(rand.nextGaussian(0.9, 0.05), 1);
+        impatience = Math.min(rand.nextGaussian(0.75, 0.05), 0.99);
         double applePreference = rand.nextDouble(1.0);
         preferences = new double[]{applePreference, 1 - applePreference};
         goods = new int[]{good1, good2};
@@ -43,7 +43,7 @@ public class Individual implements Comparable<Individual>{
         parent = p;
         age = 0;
         id = i;
-        skills = rand.nextInt(Math.max(parent.skills - 5, 1), Math.min(parent.skills + 5, 10));
+        skills = rand.nextInt(Math.max(parent.skills - 2, 1), Math.min(parent.skills + 2, 5));
         altruism = Math.min(rand.nextGaussian(parent.altruism, 0.01), 1);
         charity = rand.nextDouble(Math.max(parent.charity - 0.2, 0.0), Math.min(parent.charity + 0.2, 1.0));
         impatience = Math.min(rand.nextGaussian(parent.impatience, 0.05), 1);
@@ -115,10 +115,10 @@ public class Individual implements Comparable<Individual>{
         if (economy.size() > 1) {
             charityCase = economy.findLeastUtils(this);
         }
-        System.out.println("self utility: " + utility);
+        //System.out.println("self utility: " + utility);
         //System.out.println("future consumption: " + goodsFuture[0] + " " + goodsFuture[1]);
         //System.out.println("charity: " + charity * charityCase.utilityDiff(good1, good2));
-        System.out.println("Family: " + altruism * familyMember.utilityDiff(good1, good2));
+        //System.out.println("Family: " + altruism * familyMember.utilityDiff(good1, good2));
         if (consumptionCheck()) {
             //System.out.println("Production");
             decision = "Production";
@@ -169,11 +169,11 @@ public class Individual implements Comparable<Individual>{
             if ((oranges >= 10 & apples >= 10) & ((utilityChildDiff()) > 10 & age >= 2)) {
                 //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
                 //System.out.println("family size: " + economy.get(family).size());
-                System.out.println("Before: " + economy.get(family).size());
-                Individual child = new Individual(economy.random, family,this, 10, 10, economy.get(family).size());
+                //System.out.println("Before: " + economy.get(family).size());
+                Individual child = new Individual(economy.random, family,this, 10, 10, economy.get(family).size() + 1);
                 addChild(child);
                 economy.add(family, child);
-                System.out.println("After: " + economy.get(family).size());
+                //System.out.println("After: " + economy.get(family).size());
                 apples -= 10;
                 oranges -= 10;
                 newCurrentUtility += utilityChildDiff();
@@ -225,12 +225,19 @@ public class Individual implements Comparable<Individual>{
     }
     private void addChild(Individual child) {
         children.add(child);
-        System.out.println(children.size());
+        //System.out.println(children.size());
     }
     private boolean consumptionCheck() {
         double denom = 0.0;
         for (int i = 0; i < 5 - age; i++) {
             denom += Math.pow(impatience / skills, i);
+        }
+        if (children.size() > 0) {
+            for (Individual child: children) {
+                for (int i = 0; i < 5 - age; i++) {
+                    denom += altruism * Math.pow(child.impatience / child.skills, i);
+                }
+            }
         }
         return goodsSelf[0] > goods[0] / denom | goodsSelf[1] > goods[0] / denom;
     }
@@ -264,6 +271,12 @@ public class Individual implements Comparable<Individual>{
     }
     public boolean isGrandchild(Individual i) {
         return children.stream().anyMatch(child -> child.isChild(i));
+    }
+    public int goodTotals() {
+        return goods[0] + goods[1];
+    }
+    public double potentialUtility() {
+        return Math.pow(goods[0] + 1, preferences[0]) * Math.pow(goods[1] + 1, preferences[1]) - 1;
     }
     @Override
     public int compareTo(Individual o) {
