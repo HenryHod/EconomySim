@@ -1,8 +1,7 @@
 import pandas as pd
 import json
 import numpy as np
-import statsmodels.api as sm 
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 import time
 start = time.time()
 periods_dict = json.load(open("EconomySimData.json"))["periods"]
@@ -17,10 +16,8 @@ for period in periods_dict.keys():
                 ind_dict["Period"] = int(period)
                 df.loc[len(df)] = ind_dict
 end = time.time()
-df["Intercept"] = np.ones(df.shape[0])
-model = sm.OLS(df["children"], df[["Intercept","altruism", "impatience", "skills"]])
-result = model.fit(cov_type="HC0")
-print(result.summary())
+plt.scatter(df["altruism"], np.log(df["children"]), c = df["impatience"] )
+plt.show()
 
 
 
