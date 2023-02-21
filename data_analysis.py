@@ -1,26 +1,41 @@
+import sqlite3
 import pandas as pd
-import json
-import numpy as np
 import matplotlib.pyplot as plt
-import time
-start = time.time()
-periods_dict = json.load(open("EconomySimData.json"))["periods"]
-df = pd.DataFrame(columns=["id", "Period", "Family", "Family Size", "children", "altruism", "charity", "impatience", "skills", "good1 pref", "good2 pref", "good1", "good2", "future good1", "future good2"])
-for period in periods_dict.keys():
-    for family in periods_dict[period]["families"].keys():
-        if "individuals" in periods_dict[period]["families"][family].keys():
-            for individual in periods_dict[period]["families"][family]["individuals"].keys():
-                ind_dict = periods_dict[period]["families"][family]["individuals"][individual]
-                ind_dict["Family"] = int(family)
-                ind_dict["Family Size"] = periods_dict[period]["families"][family]["size"]
-                ind_dict["Period"] = int(period)
-                df.loc[len(df)] = ind_dict
-end = time.time()
-plt.scatter(df["altruism"], np.log(df["children"]), c = df["impatience"] )
+import numpy as np
+import seaborn as sns
+import statsmodels.api as sm
+import copy
+conn = sqlite3.connect(r"simulation.db")
+cursor = conn.cursor()
+df = pd.read_sql("SELECT * FROM simulations", conn)
+def jitter(values,j):
+    return values + np.random.normal(j,0.1,values.shape)
+family_size_dict = df.groupby(["family", "period"])["id"].count().to_dict()
+df["family size"] = df.apply(lambda x: family_size_dict[(x['family'], x['period'])], axis = 1)
+df["total goods"] = df["good1"] + df["good2"]
+family_wealth_dict = df.groupby(["family", "period"])["total goods"].sum().to_dict()
+df["family wealth"] = df.apply(lambda x: family_wealth_dict[(x['family'], x['period'])], axis = 1)
+df["returns to scale"] = df["good1_pref"] + df["good2_pref"]
+df["log children"] = np.log(df["children"]).fillna(0)
+df["log total goods"] = np.log(df["total goods"]).fillna(0)
+df["log family size"] = np.log(df["family size"])
+df["log utility"] = np.log(df["utility"]).fillna(0)
+#df["altruism * returns to scale"] = df["altruism"] * df["returns to scale"]
+#df["altruism * log total goods"] = df["altruism"] * df["log total goods"]
+#df["altruism * impatience"] = df["altruism"] * df["impatience"]
+bad_columns = ["children", "log children", "good1","good2", "good1_pref", "good2_pref", "period", "family", "generation", "impatience", "charity", "returns to scale", "utility", "log utility", "skills"]
+for column1 in df.columns[:21]:
+    for column2 in df.columns[:21]:
+        if (column1 not in bad_columns and column2 not in bad_columns) and (f"{column2} * {column1}" not in df.columns):
+            print(column1, column2)
+            df[f"{column1} * {column2}"] = df[column1] * df[column2]
+df = df[df["log total goods"] >= 0]
+df = df[df["log children"] >= 0]
+#g = sns.FacetGrid(df, col="skills")
+model = sm.OLS(df["log children"], df.drop(bad_columns, axis = 1))
+result = model.fit(cov_type="HC0")
+print(result.summary())
+plt.scatter(df["altruism"], jitter(df["log children"], 0.5), c=df["id"])
+#g.map(sns.scatterplot, "altruism","log children")
+plt.colorbar()
 plt.show()
-
-
-
-
-
-

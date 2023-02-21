@@ -10,29 +10,39 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 public class Main {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, SQLException {
         JSONObject jo = new JSONObject("{periods:{}}");
         JSONObject root = new JSONObject(new String(Files.readAllBytes(Paths.get("EconomySimData.json"))));
         JSONObject val_older = root.getJSONObject("periods");
         Random random = new Random();
-        Economy economy = new Economy(10000, random, jo);
         //Class.forName("org.sqlite.JDBC");
         Connection conn = null;
+        Statement statement = null;
         try {
             conn = DriverManager.getConnection("jdbc:sqlite:simulation.db");
-            Statement statement = conn.createStatement();
+            statement = conn.createStatement();
             // Do something with the Connection
-            statement.execute("""
-                    CREATE TABLE IF NOT EXISTS simulations (
+            statement.executeUpdate("""
+                    DROP TABLE simulations
+                    """);
+
+            statement.executeUpdate("""
+                    CREATE TABLE simulations (
                     id INTEGER PRIMARY KEY,
                     period INTEGER NOT NULL,
                     family INTEGER NOT NULL,
                     generation INTEGER NOT NULL,
+                    age INTEGER NOT NULL,
                     children INTEGER NOT NULL,
                     altruism INTEGER NOT NULL,
+                    impatience INTEGER NOT NULL,
                     charity INTEGER NOT NULL,
-                    
-                    
+                    skills INTEGER NOT NULL,
+                    good1 INTEGER NOT NULL,
+                    good2 INTEGER NOT NULL,
+                    good1_pref INTEGER NOT NULL,
+                    good2_pref INTEGER NOT NULL,
+                    utility DOUBLE NOT NULL
                     )
                     """);
         } catch (SQLException ex) {
@@ -41,14 +51,15 @@ public class Main {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
+        Economy economy = new Economy(1000, random, statement);
         for (int i = 0; i < 15; i++) {
             economy.period();
             economy.print();
         }
         JSONObject val_newer = jo.getJSONObject("periods");
-        if(!val_newer.equals(val_older)) {
+        if (!val_newer.equals(val_older)) {
             //Update value in object
-            root.put("periods",val_newer);
+            root.put("periods", val_newer);
 
             //Write into the file
             try (FileWriter file = new FileWriter("EconomySimData.json")) {
