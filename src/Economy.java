@@ -58,9 +58,10 @@ public class Economy {
                                         good2_pref,
                                         utility)
                 VALUES""");
+        /*
         for (Integer family: new HashSet<>(families.keySet())) {
             for (Individual familyMember : families.get(family)) {
-                if (familyMember.goods[0] + familyMember.goods[1] == 0 | familyMember.age >= 6) {
+                if (((familyMember.goods[0] + familyMember.goods[1]) == 0) || (familyMember.age >= 6)) {
                     families.get(family).remove(familyMember);
                     if (families.get(family).size() <= 0) {
                         families.remove(family);
@@ -68,11 +69,10 @@ public class Economy {
                 }
             }
         }
+         */
         for (Integer family: new HashSet<>(families.keySet())) {
             for (Individual familyMember : families.get(family)) {
-                if (familyMember.age >= 1) {
-                    familyMember.individualTurn(this);
-                }
+                familyMember.individualTurn(this);
                 dataString.append("(").append(periodCount).append(", ").append(familyMember.dataEntry()).append("), ");
                 //System.out.println((end - start)/1000.0);
                 familyMember.addPeriod();
@@ -96,6 +96,18 @@ public class Economy {
                                         good2_pref,
                                         utility)
                 VALUES""");
+                }
+                if (familyMember.goods[0] == 0 && familyMember.goods[1] == 0) {
+                    families.get(family).remove(familyMember);
+                    if (families.get(family).size() <= 0) {
+                        families.remove(family);
+                    }
+                }
+                if (familyMember.age >= 3) {
+                    families.get(family).remove(familyMember);
+                    if (families.get(family).size() <= 0) {
+                        families.remove(family);
+                    }
                 }
             }
 

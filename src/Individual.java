@@ -24,7 +24,7 @@ public class Individual implements Comparable<Individual>{
         age = 0;
         id = i;
         skills = 4; //rand.nextInt(2,6);
-        altruism = Math.max(Math.min(rand.nextGaussian(0.75, 0.2), 1), 0);
+        altruism = 1;//Math.max(Math.min(rand.nextGaussian(0.75, 0.2), 1), 0);
         charity = 0.5; //rand.nextDouble(1.0);
         impatience = 0.9; //Math.max(Math.min(rand.nextGaussian(0.75, 0.2), 1), 0);
         double applePreference = 0.49; //rand.nextDouble(1.0);
@@ -164,7 +164,7 @@ public class Individual implements Comparable<Individual>{
             //System.out.println((skills + 1) * goodsSelf[1] + " > or < " + (skills * (goods[1]) + goodsFuture[1]));
             //System.out.println(goods[0] + " " + goods[1]);
             //System.out.println("child utility: " + altruism * basicUtility(10, 10) + "self utility: " + utilityDiff(10, 10));
-            if ((oranges >= 20 & apples >= 20) & (altruism * basicUtility(20, 20) > utilityDiff(20, 20) & age >= 2)) {
+            if ((oranges >= 20 & apples >= 20) & (altruism * basicUtility(20, 20) > utilityDiff(20, 20))) {
                 //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
                 //System.out.println("family size: " + economy.get(family).size());
                 //System.out.println("Before: " + economy.get(family).size());
@@ -243,6 +243,10 @@ public class Individual implements Comparable<Individual>{
         if ((goods[0] > 0 | goods[1] > 0) & children.size() > 0) {
             for (Individual child: children) {
                 child.addGoods(goods[0] / children.size(), goods[1] / children.size());
+                child.parent = null;
+            }
+            if (parent != null) {
+                parent.children.remove(this);
             }
         }
     }
@@ -297,5 +301,8 @@ public class Individual implements Comparable<Individual>{
     @Override
     public int compareTo(Individual o) {
         return (int) (currentUtility - o.currentUtility);
+    }
+    public boolean isSibling(Individual i) {
+        return parent == i.parent;
     }
 }
