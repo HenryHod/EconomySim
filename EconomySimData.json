@@ -1,1 +1,313 @@
-{"periods":{}}
+{
+  "periods": {
+    "88": { "families": {} },
+    "89": { "families": {} },
+    "90": { "families": {} },
+    "91": { "families": {} },
+    "92": { "families": {} },
+    "93": { "families": {} },
+    "94": { "families": {} },
+    "95": { "families": {} },
+    "96": { "families": {} },
+    "97": { "families": {} },
+    "10": { "families": {} },
+    "98": { "families": {} },
+    "11": { "families": {} },
+    "99": { "families": {} },
+    "12": { "families": {} },
+    "13": { "families": {} },
+    "14": { "families": {} },
+    "15": { "families": {} },
+    "16": { "families": {} },
+    "17": { "families": {} },
+    "18": { "families": {} },
+    "19": { "families": {} },
+    "0": {
+      "families": {
+        "0": { "size": 1 },
+        "1": { "size": 1 },
+        "2": { "size": 1 },
+        "3": { "size": 1 },
+        "4": { "size": 1 },
+        "5": { "size": 1 },
+        "6": { "size": 1 },
+        "7": { "size": 1 },
+        "8": { "size": 1 },
+        "9": { "size": 1 }
+      }
+    },
+    "1": {
+      "families": {
+        "0": {
+          "size": 1,
+          "utility": 7.958603899206247,
+          "good2": 0,
+          "good1": 0
+        },
+        "1": {
+          "size": 4,
+          "utility": 50.63727999143849,
+          "good2": 17,
+          "good1": 17
+        },
+        "2": {
+          "size": 1,
+          "utility": 3.5089363429509333,
+          "good2": 0,
+          "good1": 0
+        },
+        "3": {
+          "size": 7,
+          "utility": 68.33182612168045,
+          "good2": 44,
+          "good1": 44
+        },
+        "4": {
+          "size": 1,
+          "utility": 16.317899510802025,
+          "good2": 0,
+          "good1": 0
+        },
+        "5": {
+          "size": 1,
+          "utility": 38.282109487362426,
+          "good2": 0,
+          "good1": 0
+        },
+        "6": {
+          "size": 1,
+          "utility": 20.448619893382176,
+          "good2": 0,
+          "good1": 0
+        },
+        "7": { "size": 2, "utility": 45.5048575246859, "good2": 5, "good1": 5 },
+        "8": {
+          "size": 3,
+          "utility": 16.55534718175278,
+          "good2": 11,
+          "good1": 11
+        },
+        "9": { "size": 1, "utility": 26.5415560171248, "good2": 0, "good1": 0 }
+      }
+    },
+    "2": {
+      "families": {
+        "0": {
+          "size": 1,
+          "utility": 1.9684038342276917,
+          "good2": 0,
+          "good1": 0
+        },
+        "1": {
+          "size": 3,
+          "utility": 96.42382696669773,
+          "good2": 6,
+          "good1": 6
+        },
+        "2": {
+          "size": 1,
+          "utility": 2.256365217123507,
+          "good2": 0,
+          "good1": 0
+        },
+        "3": {
+          "size": 7,
+          "utility": 112.87308212752303,
+          "good2": 5,
+          "good1": 5
+        },
+        "7": {
+          "size": 1,
+          "utility": 50.79492324736091,
+          "good2": 0,
+          "good1": 0
+        },
+        "8": {
+          "size": 2,
+          "utility": 31.674567039733148,
+          "good2": 12,
+          "good1": 12
+        }
+      }
+    },
+    "3": {
+      "families": {
+        "0": {
+          "size": 1,
+          "utility": 7.658265453865518,
+          "good2": 0,
+          "good1": 0
+        },
+        "1": {
+          "size": 3,
+          "utility": 24.78601249353699,
+          "good2": 5,
+          "good1": 5
+        },
+        "2": {
+          "size": 1,
+          "utility": 11.96315459690653,
+          "good2": 0,
+          "good1": 0
+        },
+        "3": {
+          "size": 4,
+          "utility": 64.81008628322932,
+          "good2": 0,
+          "good1": 0
+        },
+        "7": {
+          "size": 1,
+          "utility": 6.087350294271775,
+          "good2": 0,
+          "good1": 0
+        },
+        "8": {
+          "size": 2,
+          "utility": 9.24626150784102,
+          "good2": 12,
+          "good1": 12
+        }
+      }
+    },
+    "4": {
+      "families": {
+        "0": {
+          "size": 1,
+          "utility": 1.3020620772515907,
+          "good2": 0,
+          "good1": 0
+        },
+        "1": {
+          "size": 1,
+          "utility": 35.23939701365134,
+          "good2": 0,
+          "good1": 0
+        },
+        "3": {
+          "size": 3,
+          "utility": 36.652530042451716,
+          "good2": 0,
+          "good1": 0
+        },
+        "7": {
+          "size": 1,
+          "utility": 2.948678766752356,
+          "good2": 0,
+          "good1": 0
+        },
+        "8": { "size": 2, "utility": 8.184430199947125, "good2": 8, "good1": 8 }
+      }
+    },
+    "5": {
+      "families": {
+        "0": {
+          "size": 1,
+          "utility": 3.1852906586187704,
+          "good2": 0,
+          "good1": 0
+        },
+        "3": {
+          "size": 1,
+          "utility": 30.68621102637728,
+          "good2": 0,
+          "good1": 0
+        },
+        "7": {
+          "size": 1,
+          "utility": 0.6771788196915542,
+          "good2": 0,
+          "good1": 0
+        },
+        "8": { "size": 2, "utility": 9.271508940155092, "good2": 7, "good1": 7 }
+      }
+    },
+    "6": {
+      "families": {
+        "3": {
+          "size": 1,
+          "utility": 2.0088556318067288,
+          "good2": 0,
+          "good1": 0
+        },
+        "8": { "size": 1, "utility": 5.079135829650293, "good2": 0, "good1": 0 }
+      }
+    },
+    "7": {
+      "families": {
+        "3": { "size": 1, "utility": 2.340530305687091, "good2": 0, "good1": 0 }
+      }
+    },
+    "8": { "families": {} },
+    "9": { "families": {} },
+    "20": { "families": {} },
+    "21": { "families": {} },
+    "22": { "families": {} },
+    "23": { "families": {} },
+    "24": { "families": {} },
+    "25": { "families": {} },
+    "26": { "families": {} },
+    "27": { "families": {} },
+    "28": { "families": {} },
+    "29": { "families": {} },
+    "30": { "families": {} },
+    "31": { "families": {} },
+    "32": { "families": {} },
+    "33": { "families": {} },
+    "34": { "families": {} },
+    "35": { "families": {} },
+    "36": { "families": {} },
+    "37": { "families": {} },
+    "38": { "families": {} },
+    "39": { "families": {} },
+    "40": { "families": {} },
+    "41": { "families": {} },
+    "42": { "families": {} },
+    "43": { "families": {} },
+    "44": { "families": {} },
+    "45": { "families": {} },
+    "46": { "families": {} },
+    "47": { "families": {} },
+    "48": { "families": {} },
+    "49": { "families": {} },
+    "50": { "families": {} },
+    "51": { "families": {} },
+    "52": { "families": {} },
+    "53": { "families": {} },
+    "54": { "families": {} },
+    "55": { "families": {} },
+    "56": { "families": {} },
+    "57": { "families": {} },
+    "58": { "families": {} },
+    "59": { "families": {} },
+    "60": { "families": {} },
+    "61": { "families": {} },
+    "62": { "families": {} },
+    "63": { "families": {} },
+    "64": { "families": {} },
+    "65": { "families": {} },
+    "66": { "families": {} },
+    "67": { "families": {} },
+    "68": { "families": {} },
+    "69": { "families": {} },
+    "70": { "families": {} },
+    "71": { "families": {} },
+    "72": { "families": {} },
+    "73": { "families": {} },
+    "74": { "families": {} },
+    "75": { "families": {} },
+    "76": { "families": {} },
+    "77": { "families": {} },
+    "78": { "families": {} },
+    "79": { "families": {} },
+    "100": { "families": {} },
+    "80": { "families": {} },
+    "81": { "families": {} },
+    "82": { "families": {} },
+    "83": { "families": {} },
+    "84": { "families": {} },
+    "85": { "families": {} },
+    "86": { "families": {} },
+    "87": { "families": {} }
+  }
+}

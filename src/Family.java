@@ -5,14 +5,11 @@ import java.util.TreeSet;
 
 import static java.lang.Double.NEGATIVE_INFINITY;
 
-public class Family implements Iterable<Individual>{
+public class Family implements Iterable<Individual> {
+    private int size;
     public static class IndividualComparator implements Comparator<Individual> {
         private int smallComp(double double1, double double2) {
-            if (double1 > double2) {
-                return 1;
-            } else {
-                return 0;
-            }
+            return Double.compare(double1, double2);
         }
 
         @Override
@@ -26,7 +23,7 @@ public class Family implements Iterable<Individual>{
                     return (int) NEGATIVE_INFINITY;
                 }
             } else if (o1.getCurrentUtility() == 0 && o2.getCurrentUtility() == 0) {
-                return smallComp(o1.altruism, o2.altruism);
+                return o1.id - o2.id;
             }
             return smallComp(o1.getCurrentUtility(), o2.getCurrentUtility());
         }
@@ -34,15 +31,18 @@ public class Family implements Iterable<Individual>{
     private TreeSet<Individual> individuals;
     public Family(Individual founder) {
         individuals = new TreeSet<>(new IndividualComparator());
+        size = 1;
         individuals.add(founder);
     }
     public Individual leastUtils() {
         return individuals.first();
     }
     public void add(Individual i) {
-        System.out.println("before: " + individuals.size());
+        //System.out.println("before: " + individuals.size());
         individuals.add(i);
-        System.out.println("after: " + individuals.size());
+        size++;
+        //System.out.println("after: " + individuals.size());
+        //System.out.println(i.id);
     }
     public void remove(Individual i) {
         i.removeSelf();
@@ -52,6 +52,9 @@ public class Family implements Iterable<Individual>{
         return individuals.stream().mapToDouble(Individual::getCurrentUtility).sum();
     }
     public int size() {
+        return size;
+    }
+    public int living() {
         return individuals.size();
     }
     public int[] totalGoods() {

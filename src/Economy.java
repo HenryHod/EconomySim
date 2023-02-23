@@ -72,30 +72,37 @@ public class Economy {
          */
         for (Integer family: new HashSet<>(families.keySet())) {
             for (Individual familyMember : families.get(family)) {
-                familyMember.individualTurn(this);
-                dataString.append("(").append(periodCount).append(", ").append(familyMember.dataEntry()).append("), ");
-                //System.out.println((end - start)/1000.0);
-                familyMember.addPeriod();
-                totalGoods[0] += familyMember.goods[0];
-                totalGoods[1] += familyMember.goods[1];
-                if (dataString.length() > 100000) {
-                    statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
-                    dataString = new StringBuilder("""
-                INSERT INTO simulations (period,
-                                        family,
-                                        generation,
-                                        age,
-                                        children,
-                                        altruism,
-                                        impatience,
-                                        charity,
-                                        skills,
-                                        good1,
-                                        good2,
-                                        good1_pref,
-                                        good2_pref,
-                                        utility)
-                VALUES""");
+                if (familyMember.goods[0] + familyMember.goods[1] > 0 && familyMember.age < 3) {
+                    familyMember.individualTurn(this);
+                    dataString.append("(").append(periodCount).append(", ").append(familyMember.dataEntry()).append("), ");
+                    //System.out.println((end - start)/1000.0);
+                    familyMember.addPeriod();
+                    totalGoods[0] += familyMember.goods[0];
+                    totalGoods[1] += familyMember.goods[1];
+                    if (dataString.length() > 100000) {
+                        statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
+                        dataString = new StringBuilder("""
+                                INSERT INTO simulations (period,
+                                                        family,
+                                                        generation,
+                                                        age,
+                                                        children,
+                                                        altruism,
+                                                        impatience,
+                                                        charity,
+                                                        skills,
+                                                        good1,
+                                                        good2,
+                                                        good1_pref,
+                                                        good2_pref,
+                                                        utility)
+                                VALUES""");
+                    }
+                } else {
+                    families.get(family).remove(familyMember);
+                    if (families.get(family).living() <= 0) {
+                        families.remove(family);
+                    }
                 }
                 if (familyMember.goods[0] == 0 && familyMember.goods[1] == 0) {
                     families.get(family).remove(familyMember);

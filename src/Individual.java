@@ -5,7 +5,7 @@ import java.util.*;
 public class Individual implements Comparable<Individual>{
     double currentUtility;
     int age;
-    private final int id;
+    final int id;
     Integer family;
     int[] goods;
     int[] goodsSelf;
@@ -24,7 +24,7 @@ public class Individual implements Comparable<Individual>{
         age = 0;
         id = i;
         skills = 4; //rand.nextInt(2,6);
-        altruism = 1;//Math.max(Math.min(rand.nextGaussian(0.75, 0.2), 1), 0);
+        altruism = Math.max(Math.min(rand.nextGaussian(0.65, 0.1), 1), 0);
         charity = 0.5; //rand.nextDouble(1.0);
         impatience = 0.9; //Math.max(Math.min(rand.nextGaussian(0.75, 0.2), 1), 0);
         double applePreference = 0.49; //rand.nextDouble(1.0);
@@ -168,7 +168,7 @@ public class Individual implements Comparable<Individual>{
                 //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
                 //System.out.println("family size: " + economy.get(family).size());
                 //System.out.println("Before: " + economy.get(family).size());
-                Individual child = new Individual(economy.random, family,this, 20, 20, id + 1);
+                Individual child = new Individual(economy.random, family,this, 20, 20, economy.get(family).size() + 1);
                 addChild(child);
                 economy.add(family, child);
                 //System.out.println("After: " + economy.get(family).size());
