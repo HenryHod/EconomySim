@@ -1,29 +1,28 @@
 import org.json.JSONObject;
 
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 
 public class Economy {
     private int[] totalGoods;
-    public JSONObject jsonObject;
+    private Statement statement;
     private int periodCount;
-    private JSONObject currentPeriod;
     public Random random;
     private HashMap<Integer, Family> families;
-    public Economy(int size, Random rand, JSONObject jo) {
+    public Economy(int size, Random rand, Statement stmt) {
         random = rand;
         families = new HashMap<>();
         totalGoods = new int[]{0, 0};
         periodCount = 0;
-        jsonObject = jo;
-        jsonObject.getJSONObject("periods").put(String.valueOf(periodCount), new JSONObject("{\"families\": {}}"));
-        currentPeriod = jsonObject.getJSONObject("periods").getJSONObject(String.valueOf(periodCount));
+        statement = stmt;
+
         for (int i = 0; i < size; i++) {
-            int apples = 100; //rand.nextInt(1, 100);
-            int oranges = 100; //rand.nextInt(1, 100);
+            int apples = 20; //rand.nextInt(1, 100);
+            int oranges = 20; //rand.nextInt(1, 100);
             families.put(i, new Family( new Individual(rand, i, apples, oranges, 0)));
             totalGoods[0] += apples;
             totalGoods[1] += oranges;
-            currentPeriod.getJSONObject("families").put(String.valueOf(i), new JSONObject("{\"size\": 1 }"));
         }
     }
     public Individual findLeastUtils(Individual self) {
@@ -40,54 +39,86 @@ public class Economy {
         }
         return leastUtilsIndividual.poll();
     }
-    public void period() {
+    public void period() throws SQLException {
         totalGoods = new int[]{0, 0};
         periodCount++;
-        jsonObject.getJSONObject("periods").put(String.valueOf(periodCount), new JSONObject("{\"families\": {}}"));
-        currentPeriod = jsonObject.getJSONObject("periods").getJSONObject(String.valueOf(periodCount));
+        StringBuilder dataString = new StringBuilder("""
+                INSERT INTO simulations (period,
+                                        family,
+                                        generation,
+                                        age,
+                                        children,
+                                        altruism,
+                                        impatience,
+                                        charity,
+                                        skills,
+                                        good1,
+                                        good2,
+                                        good1_pref,
+                                        good2_pref,
+                                        utility)
+                VALUES""");
+        /*
         for (Integer family: new HashSet<>(families.keySet())) {
             for (Individual familyMember : families.get(family)) {
-                if (familyMember.goods[0] + familyMember.goods[1] == 0 | familyMember.age >= 5) {
+                if (((familyMember.goods[0] + familyMember.goods[1]) == 0) || (familyMember.age >= 6)) {
                     families.get(family).remove(familyMember);
                     if (families.get(family).size() <= 0) {
                         families.remove(family);
-                    } else {
-                        currentPeriod.getJSONObject("families").put(String.valueOf(family), new JSONObject().put("size", families.get(family).size()));
                     }
-                    //System.out.println("family left:" + families.get(family).size());
-                } else {
-                    if (!currentPeriod.getJSONObject("families").keySet().contains(String.valueOf(family))) {
-                        currentPeriod.getJSONObject("families").put(String.valueOf(family), new JSONObject().put("size", families.get(family).size()));
-                    }
-                    if (!currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).keySet().contains("individuals")) {
-                        currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).put("individuals", new JSONObject());
-                    }
-                    if (familyMember.age >= 1) {
-                        familyMember.individualTurn(this);
-                    }
-                    familyMember.addInfo(currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).getJSONObject("individuals"));
-                    currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).put("utility", families.get(family).totalUtility());
-                    int[] familyGoods = families.get(family).totalGoods();
-                    currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).put("good1", familyGoods[0]);
-                    currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).put("good2", familyGoods[1]);
-                    familyMember.addPeriod();
-
                 }
+            }
+        }
+         */
+        for (Integer family: new HashSet<>(families.keySet())) {
+            for (Individual familyMember : families.get(family)) {
+                familyMember.individualTurn(this);
+                dataString.append("(").append(periodCount).append(", ").append(familyMember.dataEntry()).append("), ");
+                //System.out.println((end - start)/1000.0);
+                familyMember.addPeriod();
                 totalGoods[0] += familyMember.goods[0];
                 totalGoods[1] += familyMember.goods[1];
-            }
-            if (families.containsKey(family)) {
-                currentPeriod.getJSONObject("families").getJSONObject(String.valueOf(family)).put("size", families.get(family).size());
+                if (dataString.length() > 100000) {
+                    statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
+                    dataString = new StringBuilder("""
+                INSERT INTO simulations (period,
+                                        family,
+                                        generation,
+                                        age,
+                                        children,
+                                        altruism,
+                                        impatience,
+                                        charity,
+                                        skills,
+                                        good1,
+                                        good2,
+                                        good1_pref,
+                                        good2_pref,
+                                        utility)
+                VALUES""");
+                }
+                if (familyMember.goods[0] == 0 && familyMember.goods[1] == 0) {
+                    families.get(family).remove(familyMember);
+                    if (families.get(family).size() <= 0) {
+                        families.remove(family);
+                    }
+                }
+                if (familyMember.age >= 3) {
+                    families.get(family).remove(familyMember);
+                    if (families.get(family).size() <= 0) {
+                        families.remove(family);
+                    }
+                }
             }
 
+        }
+        //System.out.println(dataString.substring(0, dataString.length() - 2));
+        if (families.size() > 0) {
+            statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
         }
     }
     public void add(Integer family,Individual i) {
         families.get(family).add(i);
-        //System.out.println(families.get(family).size());
-        jsonObject.getJSONObject("periods").getJSONObject(String.valueOf(periodCount))
-                .getJSONObject("families").getJSONObject(String.valueOf(family))
-                .put("size", families.get(family).size());
     }
     public Family get(Integer i) {
         return families.get(i);
@@ -100,5 +131,24 @@ public class Economy {
         System.out.println(families.keySet().stream().mapToInt(key -> families.get(key).size()).sum());
         System.out.println(totalGoods[0] + " " + totalGoods[1]);
         System.out.println(families.keySet().stream().mapToDouble(key -> families.get(key).totalUtility()).sum());
+    }
+    private void recordData(Individual i) throws SQLException {
+        statement.executeUpdate("""
+                                INSERT INTO simulations (period,
+                                                        family,
+                                                        generation,
+                                                        children,
+                                                        altruism,
+                                                        charity,
+                                                        good1,
+                                                        good2,
+                                                        good1_pref,
+                                                        good2_pref,
+                                                        utility)
+                                VALUES (
+                                """
+                                + periodCount + ", "
+                                + i.dataEntry() + ")"
+                                );
     }
 }

@@ -10,8 +10,6 @@ public class Individual implements Comparable<Individual>{
     int[] goods;
     int[] goodsSelf;
     int[] goodsFuture;
-    HashMap<Individual, int[]> goodsFamily;
-    HashMap<Individual, int[]> goodsCharity;
     int skills;
     double altruism;
     double charity;
@@ -25,17 +23,15 @@ public class Individual implements Comparable<Individual>{
         family = familyNumber;
         age = 0;
         id = i;
-        skills = rand.nextInt(2,5);
-        altruism = Math.min(rand.nextGaussian(0.85, 0.1), 1);
-        charity = rand.nextDouble(1.0);
-        impatience = Math.min(rand.nextGaussian(0.75, 0.1), 1);
-        double applePreference = rand.nextDouble(1.0);
-        preferences = new double[]{applePreference, rand.nextDouble(1.0 - applePreference)};
+        skills = 4; //rand.nextInt(2,6);
+        altruism = 1;//Math.max(Math.min(rand.nextGaussian(0.75, 0.2), 1), 0);
+        charity = 0.5; //rand.nextDouble(1.0);
+        impatience = 0.9; //Math.max(Math.min(rand.nextGaussian(0.75, 0.2), 1), 0);
+        double applePreference = 0.49; //rand.nextDouble(1.0);
+        preferences = new double[]{applePreference, 0.49};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
-        goodsFamily = new HashMap<>();
-        goodsCharity = new HashMap<>();
         children = new HashSet<>();
     }
     public Individual(Random rand, Integer familyNumber, Individual p, int good1, int good2, int i) {
@@ -43,17 +39,15 @@ public class Individual implements Comparable<Individual>{
         parent = p;
         age = 0;
         id = i;
-        skills = rand.nextInt(Math.max(parent.skills - 2, 1), Math.min(parent.skills + 2, 5));
-        altruism = Math.min(rand.nextGaussian(parent.altruism, 0.01), 1);
-        charity = rand.nextDouble(Math.max(parent.charity - 0.2, 0.0), Math.min(parent.charity + 0.2, 1.0));
-        impatience = Math.min(rand.nextGaussian(parent.impatience, 0.05), 1);
-        double applePreference = rand.nextDouble(1.0);
-        preferences = new double[]{applePreference, 1 - rand.nextDouble(1.0 - applePreference)};
+        skills = 4; //rand.nextInt(Math.max(parent.skills - 2, 2), Math.min(parent.skills + 2, 6));
+        altruism = Math.max(Math.min(rand.nextGaussian(parent.altruism, 0.05), 1), 0);
+        charity = 0.5; //Math.max(Math.min(rand.nextGaussian(parent.charity, 0.05), 1), 0);
+        impatience = 0.9; //Math.max(Math.min(rand.nextGaussian(parent.impatience, 0.05), 1), 0);
+        double applePreference = 0.49;//rand.nextDouble(1.0);
+        preferences = new double[]{applePreference, 0.49};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
-        goodsFamily = new HashMap<>();
-        goodsCharity = new HashMap<>();
         children = new HashSet<>();
     }
     public void addGoods(int apples, int oranges) {
@@ -70,6 +64,7 @@ public class Individual implements Comparable<Individual>{
         System.out.println("preferences: " + preferences[0] + " " + preferences[1]);
 
     }
+    /*
     public double utility() {
         double utility = 0.0;
         utility += utilitySelf(goodsSelf[0], goodsSelf[1]);
@@ -93,12 +88,15 @@ public class Individual implements Comparable<Individual>{
         }
         return utility;
     }
+    */
+    /*
     private double utility(int[] receivedGoods) {
         double utility = utility();
         utility -= utilitySelf(goodsSelf[0], goodsSelf[1]);
         utility += utilitySelf(goodsSelf[0] + receivedGoods[0], goodsSelf[1] + receivedGoods[1]);
         return utility;
     }
+    */
     public boolean related(Individual other) {
         return Objects.equals(this.family, other.family);
     }
@@ -166,11 +164,11 @@ public class Individual implements Comparable<Individual>{
             //System.out.println((skills + 1) * goodsSelf[1] + " > or < " + (skills * (goods[1]) + goodsFuture[1]));
             //System.out.println(goods[0] + " " + goods[1]);
             //System.out.println("child utility: " + altruism * basicUtility(10, 10) + "self utility: " + utilityDiff(10, 10));
-            if ((oranges >= 10 & apples >= 10) & (altruism * basicUtility(10, 10) > utilityDiff(10, 10) & age >= 2)) {
+            if ((oranges >= 20 & apples >= 20) & (altruism * basicUtility(20, 20) > utilityDiff(20, 20))) {
                 //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
                 //System.out.println("family size: " + economy.get(family).size());
                 //System.out.println("Before: " + economy.get(family).size());
-                Individual child = new Individual(economy.random, family,this, 10, 10, economy.get(family).size() + 1);
+                Individual child = new Individual(economy.random, family,this, 20, 20, id + 1);
                 addChild(child);
                 economy.add(family, child);
                 //System.out.println("After: " + economy.get(family).size());
@@ -245,6 +243,10 @@ public class Individual implements Comparable<Individual>{
         if ((goods[0] > 0 | goods[1] > 0) & children.size() > 0) {
             for (Individual child: children) {
                 child.addGoods(goods[0] / children.size(), goods[1] / children.size());
+                child.parent = null;
+            }
+            if (parent != null) {
+                parent.children.remove(this);
             }
         }
     }
@@ -281,8 +283,26 @@ public class Individual implements Comparable<Individual>{
     public double basicUtility(int good1, int good2) {
         return Math.pow(good1 + 1, preferences[0]) * Math.pow(good2 + 1, preferences[1]);
     }
+    public String dataEntry() {
+        return "" + family
+                + ", " + id
+                + ", " + age
+                + ", " + children.size()
+                + ", " + altruism
+                + ", " + impatience
+                + ", " + charity
+                + ", " + skills
+                + ", " + goods[0]
+                + ", " + goods[1]
+                + ", " + preferences[0]
+                + ", " + preferences[1]
+                + ", " + currentUtility;
+    }
     @Override
     public int compareTo(Individual o) {
         return (int) (currentUtility - o.currentUtility);
+    }
+    public boolean isSibling(Individual i) {
+        return parent == i.parent;
     }
 }
