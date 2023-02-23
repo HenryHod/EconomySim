@@ -26,6 +26,8 @@ public class Main {
                     DROP TABLE simulations
                     """);
 
+
+
             statement.executeUpdate("""
                     CREATE TABLE simulations (
                     id INTEGER PRIMARY KEY,
@@ -51,8 +53,8 @@ public class Main {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-        Economy economy = new Economy(1000, random, statement);
-        for (int i = 0; i < 15; i++) {
+        Economy economy = new Economy(10000, random, statement);
+        for (int i = 0; i < 10; i++) {
             economy.period();
             economy.print();
         }
