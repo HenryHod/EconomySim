@@ -24,11 +24,7 @@ public class Individual implements Comparable<Individual>{
         age = 0;
         id = i;
         skills = 4; //rand.nextInt(2,6);
-<<<<<<< HEAD
         altruism = Math.max(Math.min(rand.nextGaussian(0.65, 0.1), 1), 0);
-=======
-        altruism = 1;//Math.max(Math.min(rand.nextGaussian(0.75, 0.2), 1), 0);
->>>>>>> 1e770e6383fd6b718493c55621827ce9413b34f9
         charity = 0.5; //rand.nextDouble(1.0);
         impatience = 0.9; //Math.max(Math.min(rand.nextGaussian(0.75, 0.2), 1), 0);
         double applePreference = 0.49; //rand.nextDouble(1.0);

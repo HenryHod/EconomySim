@@ -9,15 +9,7 @@ public class Family implements Iterable<Individual> {
     private int size;
     public static class IndividualComparator implements Comparator<Individual> {
         private int smallComp(double double1, double double2) {
-<<<<<<< HEAD
             return Double.compare(double1, double2);
-=======
-            if (double1 > double2) {
-                return 1;
-            } else {
-                return 0;
-            }
->>>>>>> 1e770e6383fd6b718493c55621827ce9413b34f9
         }
 
         @Override
@@ -31,11 +23,7 @@ public class Family implements Iterable<Individual> {
                     return (int) NEGATIVE_INFINITY;
                 }
             } else if (o1.getCurrentUtility() == 0 && o2.getCurrentUtility() == 0) {
-<<<<<<< HEAD
                 return o1.id - o2.id;
-=======
-                return smallComp(o1.altruism, o2.altruism);
->>>>>>> 1e770e6383fd6b718493c55621827ce9413b34f9
             }
             return smallComp(o1.getCurrentUtility(), o2.getCurrentUtility());
         }
@@ -50,17 +38,11 @@ public class Family implements Iterable<Individual> {
         return individuals.first();
     }
     public void add(Individual i) {
-<<<<<<< HEAD
         //System.out.println("before: " + individuals.size());
         individuals.add(i);
         size++;
         //System.out.println("after: " + individuals.size());
         //System.out.println(i.id);
-=======
-        System.out.println("before: " + individuals.size());
-        individuals.add(i);
-        System.out.println("after: " + individuals.size());
->>>>>>> 1e770e6383fd6b718493c55621827ce9413b34f9
     }
     public void remove(Individual i) {
         i.removeSelf();
