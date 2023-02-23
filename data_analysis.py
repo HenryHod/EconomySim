@@ -25,7 +25,11 @@ df["log utility"] = np.log(df["utility"]).fillna(0)
 #df["altruism * log total goods"] = df["altruism"] * df["log total goods"]
 #df["altruism * impatience"] = df["altruism"] * df["impatience"]
 #df = pd.get_dummies(df,columns=["age", "generation"])
+<<<<<<< HEAD
 print(df.query("generation == 0").head())
+=======
+print(df.query("family == 984").query("generation == 1"))
+>>>>>>> 1e770e6383fd6b718493c55621827ce9413b34f9
 bad_columns = ["children", "log children", "good1","good2", "good1_pref", "good2_pref", "period", "family", "impatience", "charity", "returns to scale", "utility", "log utility", "skills", "id"]
 for column1 in df.columns[:21]:
     for column2 in df.columns[:21]:
@@ -34,6 +38,7 @@ for column1 in df.columns[:21]:
             df[f"{column1} * {column2}"] = df[column1] * df[column2]
 df = df[df["log total goods"] >= 0]
 df = df[df["log children"] >= 0]
+<<<<<<< HEAD
 """
 #g = sns.FacetGrid(df.query("generation == 0"), col="age")
 #model = sm.OLS(df["log children"], df.drop(bad_columns, axis = 1))
@@ -43,3 +48,12 @@ plt.scatter(df["altruism"], df["log children"], c = df["log total goods"])
 #g.map(sns.scatterplot, "altruism","log children")
 #ax.colorbar()
 plt.show()
+=======
+g = sns.FacetGrid(df, col="generation * generation")
+model = sm.OLS(df["log children"], df.drop(bad_columns, axis = 1))
+result = model.fit(cov_type="HC0")
+#print(result.summary())
+#plt.scatter(df["altruism"], jitter(df["log children"], 0.5), c=df["generation"])
+#g.map(sns.scatterplot, "altruism","log children")
+#plt.show()
+>>>>>>> 1e770e6383fd6b718493c55621827ce9413b34f9
