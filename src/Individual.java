@@ -107,8 +107,9 @@ public class Individual implements Comparable<Individual>{
         Individual familyMember = this;
         Individual charityCase = this;
         //System.out.println(charityCase);
-        if (economy.get(family).size() > 1) {
+        if (economy.get(family).living() > 1) {
             familyMember = economy.get(family).leastUtils();
+            System.out.println(economy.get(family).living());
         }
         if (economy.size() > 1) {
             charityCase = economy.findLeastUtils(this);

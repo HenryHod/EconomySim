@@ -18,8 +18,8 @@ public class Economy {
         statement = stmt;
 
         for (int i = 0; i < size; i++) {
-            int apples = 20; //rand.nextInt(1, 100);
-            int oranges = 20; //rand.nextInt(1, 100);
+            int apples = 500; //rand.nextInt(1, 100);
+            int oranges = 500; //rand.nextInt(1, 100);
             families.put(i, new Family( new Individual(rand, i, apples, oranges, 0)));
             totalGoods[0] += apples;
             totalGoods[1] += oranges;
