@@ -23,8 +23,8 @@ public class Individual implements Comparable<Individual>{
         family = familyNumber;
         age = 0;
         id = i;
-        skills = 4; //rand.nextInt(2,6);
-        altruism = Math.max(Math.min(rand.nextGaussian(0.65, 0.1), 1), 0);
+        skills = 3; //rand.nextInt(2,6);
+        altruism = Math.max(Math.min(rand.nextGaussian(0.9, 0.1), 1), 0);
         charity = 0.5; //rand.nextDouble(1.0);
         impatience = 0.9; //Math.max(Math.min(rand.nextGaussian(0.75, 0.2), 1), 0);
         double applePreference = 0.49; //rand.nextDouble(1.0);
@@ -141,8 +141,8 @@ public class Individual implements Comparable<Individual>{
             goodsSelf[1] += good2;
         } else if (Objects.equals(decision, "Production")) {
             int r = economy.random.nextInt(Math.max(0, skills - 2), Math.min(skills + 2, 10));
-            goodsFuture[0] += good1 * r;
-            goodsFuture[1] += good2 * r;
+            goodsFuture[0] += good1;
+            goodsFuture[1] += good2;
         } else if (Objects.equals(decision, "Family")) {
             utility = altruism * familyMember.utilityDiff(good1, good2);
             familyMember.addGoods(good1, good2);
@@ -173,8 +173,8 @@ public class Individual implements Comparable<Individual>{
                 addChild(child);
                 economy.add(family, child);
                 //System.out.println("After: " + economy.get(family).size());
-                apples -= 10;
-                oranges -= 10;
+                apples -= 20;
+                oranges -= 20;
                 currentUtility += altruism * child.potentialUtility();
 
             }

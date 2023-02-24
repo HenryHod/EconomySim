@@ -1,2 +1,5 @@
 .idea/*
 *.class
+.idea/*
+*.db
+out/*

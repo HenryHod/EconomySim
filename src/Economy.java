@@ -18,6 +18,8 @@ public class Economy {
         statement = stmt;
 
         for (int i = 0; i < size; i++) {
+            int apples = 50; //rand.nextInt(1, 100);
+            int oranges = 50; //rand.nextInt(1, 100);
             int apples = 500; //rand.nextInt(1, 100);
             int oranges = 500; //rand.nextInt(1, 100);
             families.put(i, new Family( new Individual(rand, i, apples, oranges, 0)));
@@ -29,7 +31,7 @@ public class Economy {
         PriorityQueue<Individual> leastUtilsIndividual = new PriorityQueue<>();
         int familyCount = 0;
         for (Integer family: families.keySet()) {
-            if (!Objects.equals(family, self.family)) {
+            if (!Objects.equals(family, self.family) && families.get(family).living() > 0) {
                 leastUtilsIndividual.add(families.get(family).leastUtils());
                 familyCount++;
             }
@@ -44,6 +46,9 @@ public class Economy {
         periodCount++;
         StringBuilder dataString = new StringBuilder("""
                 INSERT INTO simulations (period,
+                                        good1,
+                                        good2,
+                                        new_children,
                                         family,
                                         generation,
                                         age,
@@ -52,8 +57,8 @@ public class Economy {
                                         impatience,
                                         charity,
                                         skills,
-                                        good1,
-                                        good2,
+                                        future_good1,
+                                        future_good2,
                                         good1_pref,
                                         good2_pref,
                                         utility)
@@ -72,49 +77,49 @@ public class Economy {
          */
         for (Integer family: new HashSet<>(families.keySet())) {
             for (Individual familyMember : families.get(family)) {
-                if (familyMember.goods[0] + familyMember.goods[1] > 0 && familyMember.age < 3) {
-                    familyMember.individualTurn(this);
-                    dataString.append("(").append(periodCount).append(", ").append(familyMember.dataEntry()).append("), ");
-                    //System.out.println((end - start)/1000.0);
-                    familyMember.addPeriod();
-                    totalGoods[0] += familyMember.goods[0];
-                    totalGoods[1] += familyMember.goods[1];
-                    if (dataString.length() > 100000) {
-                        statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
-                        dataString = new StringBuilder("""
-                                INSERT INTO simulations (period,
-                                                        family,
-                                                        generation,
-                                                        age,
-                                                        children,
-                                                        altruism,
-                                                        impatience,
-                                                        charity,
-                                                        skills,
-                                                        good1,
-                                                        good2,
-                                                        good1_pref,
-                                                        good2_pref,
-                                                        utility)
-                                VALUES""");
-                    }
-                } else {
+                if (familyMember.goods[0] + familyMember.goods[1] <= 0 || familyMember.age >= 3) {
                     families.get(family).remove(familyMember);
                     if (families.get(family).living() <= 0) {
                         families.remove(family);
                     }
                 }
-                if (familyMember.goods[0] == 0 && familyMember.goods[1] == 0) {
-                    families.get(family).remove(familyMember);
-                    if (families.get(family).size() <= 0) {
-                        families.remove(family);
-                    }
-                }
-                if (familyMember.age >= 3) {
-                    families.get(family).remove(familyMember);
-                    if (families.get(family).size() <= 0) {
-                        families.remove(family);
-                    }
+            }
+        }
+        for (Integer family: new HashSet<>(families.keySet())) {
+            for (Individual familyMember : families.get(family)) {
+                int[] previousGoods = familyMember.goods.clone();
+                int previousChildren = familyMember.children.size();
+                familyMember.individualTurn(this);
+                dataString.append("(").append(periodCount).append(", ")
+                        .append(previousGoods[0]).append(", ")
+                        .append(previousGoods[1]).append(", ")
+                        .append(familyMember.children.size() - previousChildren).append(", ")
+                        .append(familyMember.dataEntry()).append("), ");
+                //System.out.println((end - start)/1000.0);
+                familyMember.addPeriod();
+                totalGoods[0] += familyMember.goods[0];
+                totalGoods[1] += familyMember.goods[1];
+                if (dataString.length() > 100000) {
+                    statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
+                    dataString = new StringBuilder("""
+                            INSERT INTO simulations (period,
+                                                    good1,
+                                                    good2,
+                                                    new_children,
+                                                    family,
+                                                    generation,
+                                                    age,
+                                                    children,
+                                                    altruism,
+                                                    impatience,
+                                                    charity,
+                                                    skills,
+                                                    future_good1,
+                                                    future_good2,
+                                                    good1_pref,
+                                                    good2_pref,
+                                                    utility)
+                            VALUES""");
                 }
             }
 
