@@ -1,16 +1,16 @@
 
+import java.lang.reflect.Array;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeSet;
 
 import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Double.sum;
 
-public class Family implements Iterable<Individual> {
+public class Family implements Iterable<Clan> {
     private int size;
     public static class IndividualComparator implements Comparator<Individual> {
-        private int smallComp(double double1, double double2) {
-            return Double.compare(double1, double2);
-        }
 
         @Override
         public int compare(Individual o1, Individual o2) {
@@ -25,44 +25,71 @@ public class Family implements Iterable<Individual> {
             } else if (o1.getCurrentUtility() == 0 && o2.getCurrentUtility() == 0) {
                 return o1.id - o2.id;
             }
-            return smallComp(o1.getCurrentUtility(), o2.getCurrentUtility());
+            return Double.compare(o1.getCurrentUtility(), o2.getCurrentUtility());
         }
     }
-    private TreeSet<Individual> individuals;
+    private HashMap<Integer, Clan> clans;
     public Family(Individual founder) {
-        individuals = new TreeSet<>(new IndividualComparator());
+        clans = new HashMap<>();
         size = 1;
-        individuals.add(founder);
+        clans.put(0, new Clan(founder));
+    }
+    public Individual leastUtils(Individual i) {
+        return clans.get(i.clan).leastUtils();
     }
     public Individual leastUtils() {
-        return individuals.first();
+        return clans.keySet().stream().map(key -> clans.get(key).leastUtils()).min(new IndividualComparator()).get();
     }
     public void add(Individual i) {
         //System.out.println("before: " + individuals.size());
-        individuals.add(i);
+        clans.get(i.clan).add(i);
         size++;
         //System.out.println("after: " + individuals.size());
         //System.out.println(i.id);
     }
     public void remove(Individual i) {
+        for (Individual child: i) {
+            clans.get(child.clan).remove(child);
+            child.clan = size;
+            clans.put(child.clan, new Clan(child));
+            size++;
+            for (Individual grandchild: child) {
+                clans.get(grandchild.clan).remove(grandchild);
+                clans.get(child.clan).add(grandchild);
+            }
+        }
+        clans.get(i.clan).remove(i);
         i.removeSelf();
-        individuals.remove(i);
+        //System.out.println(clans.get(i.clan).living());
+        if (clans.get(i.clan).living() == 0) {
+            System.out.println("Remove Clan: " + i.clan + " From Family: " + i.family + " Last Individual: " + i.id);
+            clans.remove(i.clan);
+        }
     }
     public double totalUtility() {
-        return individuals.stream().mapToDouble(Individual::getCurrentUtility).sum();
+        return clans.keySet().stream().mapToDouble(key -> clans.get(key).totalUtility()).sum();
     }
     public int size() {
         return size;
     }
     public int living() {
-        return individuals.size();
+        return clans.keySet().stream().mapToInt(key -> clans.get(key).living()).sum();
     }
     public int[] totalGoods() {
-        return new int[]{individuals.stream().mapToInt(ind -> ind.goods[0]).sum(), individuals.stream().mapToInt(ind -> ind.goods[0]).sum()};
+        int[] total = new int[2];
+        for (Clan clan: this) {
+            int[] clanTotal = clan.totalGoods();
+            total[0] += clanTotal[0];
+            total[1] += clanTotal[1];
+        }
+        return total;
     }
     @Override
-    public Iterator<Individual> iterator() {
-        TreeSet<Individual> individualsCopy = (TreeSet<Individual>) individuals.clone();
-        return individualsCopy.iterator();
+    public Iterator<Clan> iterator() {
+        HashMap<Integer, Clan> clansCopy = (HashMap<Integer, Clan>) clans.clone();
+        return clansCopy.keySet().stream().map(clansCopy::get).iterator();
+    }
+    public Clan get(Integer clan) {
+        return clans.get(clan);
     }
 }

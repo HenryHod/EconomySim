@@ -2,11 +2,12 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-public class Individual implements Comparable<Individual>{
+public class Individual implements Comparable<Individual>, Iterable<Individual>{
     double currentUtility;
     int age;
     final int id;
     Integer family;
+    Integer clan;
     int[] goods;
     int[] goodsSelf;
     int[] goodsFuture;
@@ -21,34 +22,38 @@ public class Individual implements Comparable<Individual>{
 
     public Individual(Random rand, Integer familyNumber, int good1, int good2, int i) {
         family = familyNumber;
+        clan = 0;
         age = 0;
         id = i;
         skills = 3; //rand.nextInt(2,6);
-        altruism = Math.max(Math.min(rand.nextGaussian(0.9, 0.1), 1), 0);
+        altruism = 1; //Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
         charity = 0.5; //rand.nextDouble(1.0);
-        impatience = 0.9; //Math.max(Math.min(rand.nextGaussian(0.75, 0.2), 1), 0);
+        impatience = 0.75; //Math.max(Math.min(rand.nextGaussian(0.65, 0.1), 1), 0);
         double applePreference = 0.49; //rand.nextDouble(1.0);
         preferences = new double[]{applePreference, 0.49};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
         children = new HashSet<>();
+        siblings = new HashSet<>();
     }
     public Individual(Random rand, Integer familyNumber, Individual p, int good1, int good2, int i) {
         family = familyNumber;
         parent = p;
+        clan = p.clan;
         age = 0;
         id = i;
         skills = 4; //rand.nextInt(Math.max(parent.skills - 2, 2), Math.min(parent.skills + 2, 6));
-        altruism = Math.max(Math.min(rand.nextGaussian(parent.altruism, 0.05), 1), 0);
+        altruism = 1; //Math.max(Math.min(rand.nextGaussian(parent.altruism, 0.01), 1), 0);
         charity = 0.5; //Math.max(Math.min(rand.nextGaussian(parent.charity, 0.05), 1), 0);
-        impatience = 0.9; //Math.max(Math.min(rand.nextGaussian(parent.impatience, 0.05), 1), 0);
+        impatience = Math.max(Math.min(rand.nextGaussian(parent.impatience, 0.05), 1), 0);
         double applePreference = 0.49;//rand.nextDouble(1.0);
         preferences = new double[]{applePreference, 0.49};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
         children = new HashSet<>();
+        siblings = new HashSet<>(p.children);
     }
     public void addGoods(int apples, int oranges) {
         goods[0] += apples;
@@ -107,9 +112,8 @@ public class Individual implements Comparable<Individual>{
         Individual familyMember = this;
         Individual charityCase = this;
         //System.out.println(charityCase);
-        if (economy.get(family).living() > 1) {
-            familyMember = economy.get(family).leastUtils();
-            System.out.println(economy.get(family).living());
+        if (economy.get(family).get(clan).living() > 1) {
+            familyMember = economy.get(family).leastUtils(this);
         }
         if (economy.size() > 1) {
             charityCase = economy.findLeastUtils(this);
@@ -141,8 +145,8 @@ public class Individual implements Comparable<Individual>{
             goodsSelf[1] += good2;
         } else if (Objects.equals(decision, "Production")) {
             int r = economy.random.nextInt(Math.max(0, skills - 2), Math.min(skills + 2, 10));
-            goodsFuture[0] += good1;
-            goodsFuture[1] += good2;
+            goodsFuture[0] += good1 * skills;
+            goodsFuture[1] += good2 * skills;
         } else if (Objects.equals(decision, "Family")) {
             utility = altruism * familyMember.utilityDiff(good1, good2);
             familyMember.addGoods(good1, good2);
@@ -165,29 +169,30 @@ public class Individual implements Comparable<Individual>{
             //System.out.println((skills + 1) * goodsSelf[1] + " > or < " + (skills * (goods[1]) + goodsFuture[1]));
             //System.out.println(goods[0] + " " + goods[1]);
             //System.out.println("child utility: " + altruism * basicUtility(10, 10) + "self utility: " + utilityDiff(10, 10));
-            if ((oranges >= 20 & apples >= 20) & (altruism * basicUtility(20, 20) > utilityDiff(20, 20))) {
+            if ((oranges >= economy.childCost & apples >= economy.childCost) & (altruism * basicUtility(economy.childCost / 2, economy.childCost / 2) > utilityDiff(economy.childCost / 2, economy.childCost / 2))) {
                 //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
                 //System.out.println("family size: " + economy.get(family).size());
                 //System.out.println("Before: " + economy.get(family).size());
-                Individual child = new Individual(economy.random, family,this, 20, 20, economy.get(family).size() + 1);
+                Individual child = new Individual(economy.random, family,this, economy.childCost / 2, economy.childCost / 2, economy.get(family).size() + 1);
                 addChild(child);
                 economy.add(family, child);
                 //System.out.println("After: " + economy.get(family).size());
-                apples -= 20;
-                oranges -= 20;
+                apples -= economy.childCost / 2;
+                oranges -= economy.childCost / 2;
                 currentUtility += altruism * child.potentialUtility();
 
-            }
-            if (apples > 0 & oranges > 0) {
-                bestDecision(economy, 1, 1);
-                apples -= 1;
-                oranges -= 1;
-            } else if (apples > 0) {
-                bestDecision(economy, 1, 0);
-                apples -= 1;
             } else {
-                bestDecision(economy, 0, 1);
-                oranges -= 1;
+                if (apples > 0 & oranges > 0) {
+                    bestDecision(economy, 1, 1);
+                    apples -= 1;
+                    oranges -= 1;
+                } else if (apples > 0 && oranges == 0) {
+                    bestDecision(economy, 1, 0);
+                    apples -= 1;
+                } else if (apples == 0) {
+                    bestDecision(economy, 0, 1);
+                    oranges -= 1;
+                }
             }
             //System.out.println(apples + " " + oranges + " " + utilityChildDiff() + " " + utilityDiff(5, 5));
 
@@ -223,6 +228,9 @@ public class Individual implements Comparable<Individual>{
         return currentUtility;
     }
     private void addChild(Individual child) {
+        for (Individual sibling: children) {
+            sibling.siblings.add(child);
+        }
         children.add(child);
         //System.out.println(children.size());
     }
@@ -241,14 +249,19 @@ public class Individual implements Comparable<Individual>{
         return goodsSelf[0] > goods[0] / denom | goodsSelf[1] > goods[0] / denom;
     }
     public void removeSelf() {
-        if ((goods[0] > 0 | goods[1] > 0) & children.size() > 0) {
+        if (children.size() > 0) {
             for (Individual child: children) {
-                child.addGoods(goods[0] / children.size(), goods[1] / children.size());
+                if ((goods[0] > 0 | goods[1] > 0)) {
+                    child.addGoods(goods[0] / children.size(), goods[1] / children.size());
+                }
                 child.parent = null;
             }
-            if (parent != null) {
-                parent.children.remove(this);
-            }
+        }
+        for (Individual sibling: siblings) {
+            sibling.siblings.remove(this);
+        }
+        if (parent != null) {
+            parent.children.remove(this);
         }
     }
     public void addPeriod() {
@@ -304,6 +317,14 @@ public class Individual implements Comparable<Individual>{
         return (int) (currentUtility - o.currentUtility);
     }
     public boolean isSibling(Individual i) {
-        return parent == i.parent;
+        if (this != i) {
+            return parent == i.parent;
+        }
+        return false;
+    }
+
+    @Override
+    public Iterator<Individual> iterator() {
+        return children.iterator();
     }
 }

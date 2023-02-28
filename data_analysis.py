@@ -25,7 +25,7 @@ df["log utility"] = np.log(df["utility"]).fillna(0)
 #df["altruism * log total goods"] = df["altruism"] * df["log total goods"]
 #df["altruism * impatience"] = df["altruism"] * df["impatience"]
 #df = pd.get_dummies(df,columns=["age", "generation"])
-bad_columns = ["children", "log children", "good1","good2", "future_good1", "future_good2", "good1_pref", "good2_pref", "period", "family", "impatience", "charity", "returns to scale", "utility", "log utility", "skills", "id"]
+bad_columns = ["children", "log children", "good1","good2", "future_good1", "future_good2", "good1_pref", "good2_pref", "period", "family", "impatience", "charity", "returns to scale", "utility", "log utility", "skills", "id", "new_children"]
 for column1 in df.columns[:21]:
     for column2 in df.columns[:21]:
         if (column1 not in bad_columns and column2 not in bad_columns) and (f"{column2} * {column1}" not in df.columns):
@@ -33,15 +33,16 @@ for column1 in df.columns[:21]:
             df[f"{column1} * {column2}"] = df[column1] * df[column2]
 df.replace([np.inf, -np.inf], np.nan, inplace=True)
 df.dropna(inplace=True)
-print(df.head())
+print(df)
 #g = sns.FacetGrid(df.query("generation == 0"), col="age")
-model = sm.OLS(df["children"], df.drop(bad_columns, axis = 1))
+plt.plot(np.unique(df["period"]), df.groupby("period")["id"].count().pct_change())
+model = sm.OLS(df["new_children"], df.drop(bad_columns, axis = 1))
 result = model.fit(cov_type="HC0")
 print(result.summary())
 age0_df = df.query("age == 0").query("generation == 0")
-plt.scatter(df["altruism"], jitter(df["new_children"], 0), c=df["log total goods"])
+#plt.scatter(age0_df["altruism"], jitter(age0_df["new_children"], 0), c=age0_df["impatience"])
 #g.map(sns.scatterplot, "altruism","log children")
 #ax.colorbar()
 #plt.xlim(0.7, 1)
-plt.colorbar()
+#plt.colorbar()
 plt.show()

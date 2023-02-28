@@ -10,6 +10,7 @@ public class Economy {
     private int periodCount;
     public Random random;
     private HashMap<Integer, Family> families;
+    public final int childCost  = 20;
     public Economy(int size, Random rand, Statement stmt) {
         random = rand;
         families = new HashMap<>();
@@ -18,10 +19,8 @@ public class Economy {
         statement = stmt;
 
         for (int i = 0; i < size; i++) {
-            int apples = 50; //rand.nextInt(1, 100);
-            int oranges = 50; //rand.nextInt(1, 100);
-            int apples = 500; //rand.nextInt(1, 100);
-            int oranges = 500; //rand.nextInt(1, 100);
+            int apples = childCost * 2; //rand.nextInt(1, 100);
+            int oranges = childCost * 2; //rand.nextInt(1, 100);
             families.put(i, new Family( new Individual(rand, i, apples, oranges, 0)));
             totalGoods[0] += apples;
             totalGoods[1] += oranges;
@@ -76,50 +75,54 @@ public class Economy {
         }
          */
         for (Integer family: new HashSet<>(families.keySet())) {
-            for (Individual familyMember : families.get(family)) {
-                if (familyMember.goods[0] + familyMember.goods[1] <= 0 || familyMember.age >= 3) {
-                    families.get(family).remove(familyMember);
-                    if (families.get(family).living() <= 0) {
-                        families.remove(family);
+            for (Clan clan : families.get(family)) {
+                for (Individual familyMember: clan) {
+                    if (familyMember.goods[0] + familyMember.goods[1] <= 0 || familyMember.age >= 3) {
+                        families.get(family).remove(familyMember);
+                        if (families.get(family).living() <= 0) {
+                            families.remove(family);
+                        }
                     }
                 }
             }
         }
         for (Integer family: new HashSet<>(families.keySet())) {
-            for (Individual familyMember : families.get(family)) {
-                int[] previousGoods = familyMember.goods.clone();
-                int previousChildren = familyMember.children.size();
-                familyMember.individualTurn(this);
-                dataString.append("(").append(periodCount).append(", ")
-                        .append(previousGoods[0]).append(", ")
-                        .append(previousGoods[1]).append(", ")
-                        .append(familyMember.children.size() - previousChildren).append(", ")
-                        .append(familyMember.dataEntry()).append("), ");
-                //System.out.println((end - start)/1000.0);
-                familyMember.addPeriod();
-                totalGoods[0] += familyMember.goods[0];
-                totalGoods[1] += familyMember.goods[1];
-                if (dataString.length() > 100000) {
-                    statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
-                    dataString = new StringBuilder("""
-                            INSERT INTO simulations (period,
-                                                    good1,
-                                                    good2,
-                                                    new_children,
-                                                    family,
-                                                    generation,
-                                                    age,
-                                                    children,
-                                                    altruism,
-                                                    impatience,
-                                                    charity,
-                                                    skills,
-                                                    future_good1,
-                                                    future_good2,
-                                                    good1_pref,
-                                                    good2_pref,
-                                                    utility)
-                            VALUES""");
+            for (Clan clan : families.get(family)) {
+                for (Individual familyMember: clan) {
+                    int[] previousGoods = familyMember.goods.clone();
+                    int previousChildren = familyMember.children.size();
+                    familyMember.individualTurn(this);
+                    dataString.append("(").append(periodCount).append(", ")
+                            .append(previousGoods[0]).append(", ")
+                            .append(previousGoods[1]).append(", ")
+                            .append(familyMember.children.size() - previousChildren).append(", ")
+                            .append(familyMember.dataEntry()).append("), ");
+                    //System.out.println((end - start)/1000.0);
+                    familyMember.addPeriod();
+                    totalGoods[0] += familyMember.goods[0];
+                    totalGoods[1] += familyMember.goods[1];
+                    if (dataString.length() > 100000) {
+                        statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
+                        dataString = new StringBuilder("""
+                                INSERT INTO simulations (period,
+                                                        good1,
+                                                        good2,
+                                                        new_children,
+                                                        family,
+                                                        generation,
+                                                        age,
+                                                        children,
+                                                        altruism,
+                                                        impatience,
+                                                        charity,
+                                                        skills,
+                                                        future_good1,
+                                                        future_good2,
+                                                        good1_pref,
+                                                        good2_pref,
+                                                        utility)
+                                VALUES""");
+                    }
                 }
             }
 
@@ -140,7 +143,7 @@ public class Economy {
     }
     public void print() {
         System.out.println("Period: " + periodCount);
-        System.out.println(families.keySet().stream().mapToInt(key -> families.get(key).size()).sum());
+        System.out.println(families.keySet().stream().mapToInt(key -> families.get(key).living()).sum());
         System.out.println(totalGoods[0] + " " + totalGoods[1]);
         System.out.println(families.keySet().stream().mapToDouble(key -> families.get(key).totalUtility()).sum());
     }
