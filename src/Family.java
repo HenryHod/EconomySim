@@ -10,6 +10,7 @@ import static java.lang.Double.sum;
 
 public class Family implements Iterable<Clan> {
     private int size;
+    private int living;
     public static class IndividualComparator implements Comparator<Individual> {
 
         @Override
@@ -32,18 +33,20 @@ public class Family implements Iterable<Clan> {
     public Family(Individual founder) {
         clans = new HashMap<>();
         size = 1;
+        living = 1;
         clans.put(0, new Clan(founder));
     }
     public Individual leastUtils(Individual i) {
         return clans.get(i.clan).leastUtils();
     }
-    public Individual leastUtils() {
-        return clans.keySet().stream().map(key -> clans.get(key).leastUtils()).min(new IndividualComparator()).get();
+    public Individual getOne() {
+        return clans.entrySet().iterator().next().getValue().noCopyIterator().next();
     }
     public void add(Individual i) {
         //System.out.println("before: " + individuals.size());
         clans.get(i.clan).add(i);
         size++;
+        living++;
         //System.out.println("after: " + individuals.size());
         //System.out.println(i.id);
     }
@@ -55,14 +58,16 @@ public class Family implements Iterable<Clan> {
             size++;
             for (Individual grandchild: child) {
                 clans.get(grandchild.clan).remove(grandchild);
+                grandchild.clan = child.clan;
                 clans.get(child.clan).add(grandchild);
             }
         }
         clans.get(i.clan).remove(i);
         i.removeSelf();
+        living -= 1;
         //System.out.println(clans.get(i.clan).living());
         if (clans.get(i.clan).living() == 0) {
-            System.out.println("Remove Clan: " + i.clan + " From Family: " + i.family + " Last Individual: " + i.id);
+            //System.out.println("Remove Clan: " + i.clan + " From Family: " + i.family + " Last Individual: " + i.id);
             clans.remove(i.clan);
         }
     }
@@ -73,7 +78,7 @@ public class Family implements Iterable<Clan> {
         return size;
     }
     public int living() {
-        return clans.keySet().stream().mapToInt(key -> clans.get(key).living()).sum();
+        return living;
     }
     public int[] totalGoods() {
         int[] total = new int[2];
@@ -83,6 +88,9 @@ public class Family implements Iterable<Clan> {
             total[1] += clanTotal[1];
         }
         return total;
+    }
+    public Iterator<Clan> noCopyIterator() {
+        return clans.keySet().stream().map(clans::get).iterator();
     }
     @Override
     public Iterator<Clan> iterator() {

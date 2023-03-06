@@ -26,19 +26,10 @@ public class Economy {
             totalGoods[1] += oranges;
         }
     }
-    public Individual findLeastUtils(Individual self) {
-        PriorityQueue<Individual> leastUtilsIndividual = new PriorityQueue<>();
-        int familyCount = 0;
-        for (Integer family: families.keySet()) {
-            if (!Objects.equals(family, self.family) && families.get(family).living() > 0) {
-                leastUtilsIndividual.add(families.get(family).leastUtils());
-                familyCount++;
-            }
-            if (familyCount >= 5) {
-                break;
-            }
-        }
-        return leastUtilsIndividual.poll();
+    public Individual getOne(Individual self) {
+        return families.entrySet().stream()
+                .findFirst(family -> !Objects.equals(family.getKey(), self.family))
+                .iterator().next().getValue().getOne();
     }
     public void period() throws SQLException {
         totalGoods = new int[]{0, 0};

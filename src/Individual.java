@@ -26,9 +26,9 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
         age = 0;
         id = i;
         skills = 3; //rand.nextInt(2,6);
-        altruism = 1; //Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
+        altruism = Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
         charity = 0.5; //rand.nextDouble(1.0);
-        impatience = 0.75; //Math.max(Math.min(rand.nextGaussian(0.65, 0.1), 1), 0);
+        impatience = Math.max(Math.min(rand.nextGaussian(0.65, 0.1), 1), 0);
         double applePreference = 0.49; //rand.nextDouble(1.0);
         preferences = new double[]{applePreference, 0.49};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
@@ -116,7 +116,7 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
             familyMember = economy.get(family).leastUtils(this);
         }
         if (economy.size() > 1) {
-            charityCase = economy.findLeastUtils(this);
+            charityCase = economy.getOne(this);
         }
         //System.out.println("self utility: " + utility);
         //System.out.println("future consumption: " + goodsFuture[0] + " " + goodsFuture[1]);
