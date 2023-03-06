@@ -1,5 +1,7 @@
-.idea/*
+/.idea/
 *.class
-.idea/*
+/src/simulation.db
 *.db
-out/*
+*.json
+/out/
+/.idea/
