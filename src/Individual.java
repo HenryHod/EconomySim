@@ -17,7 +17,7 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
     double impatience;
     double[] preferences;
     Individual parent;
-    HashSet<Individual> siblings;
+    //HashSet<Individual> siblings;
     HashSet<Individual> children;
 
     public Individual(Random rand, Integer familyNumber, int good1, int good2, int i) {
@@ -28,14 +28,14 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
         skills = 3; //rand.nextInt(2,6);
         altruism = Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
         charity = 0.5; //rand.nextDouble(1.0);
-        impatience = Math.max(Math.min(rand.nextGaussian(0.65, 0.1), 1), 0);
+        impatience = Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
         double applePreference = 0.49; //rand.nextDouble(1.0);
         preferences = new double[]{applePreference, 0.49};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
         children = new HashSet<>();
-        siblings = new HashSet<>();
+        //siblings = new HashSet<>();
     }
     public Individual(Random rand, Integer familyNumber, Individual p, int good1, int good2, int i) {
         family = familyNumber;
@@ -44,16 +44,16 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
         age = 0;
         id = i;
         skills = 4; //rand.nextInt(Math.max(parent.skills - 2, 2), Math.min(parent.skills + 2, 6));
-        altruism = 1; //Math.max(Math.min(rand.nextGaussian(parent.altruism, 0.01), 1), 0);
+        altruism = Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
         charity = 0.5; //Math.max(Math.min(rand.nextGaussian(parent.charity, 0.05), 1), 0);
-        impatience = Math.max(Math.min(rand.nextGaussian(parent.impatience, 0.05), 1), 0);
+        impatience = Math.max(Math.min(rand.nextGaussian(0.75, 0.05), 1), 0);
         double applePreference = 0.49;//rand.nextDouble(1.0);
         preferences = new double[]{applePreference, 0.49};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
         children = new HashSet<>();
-        siblings = new HashSet<>(p.children);
+        //siblings = new HashSet<>(p.children);
     }
     public void addGoods(int apples, int oranges) {
         goods[0] += apples;
@@ -112,12 +112,6 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
         Individual familyMember = this;
         Individual charityCase = this;
         //System.out.println(charityCase);
-        if (economy.get(family).get(clan).living() > 1) {
-            familyMember = economy.get(family).leastUtils(this);
-        }
-        if (economy.size() > 1) {
-            charityCase = economy.getOne(this);
-        }
         //System.out.println("self utility: " + utility);
         //System.out.println("future consumption: " + goodsFuture[0] + " " + goodsFuture[1]);
         //System.out.println("charity: " + charity * charityCase.utilityDiff(good1, good2));
@@ -127,14 +121,20 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
             decision = "Production";
             utility += impatience * utilityFutDiff(good1, good2);
         }
-        if (altruism * familyMember.utilityDiff(good1, good2) > utility) {
-            //System.out.println("Family");
-            decision = "Family";
-            utility += altruism * familyMember.utilityDiff(good1, good2);
+        if (economy.get(family).get(clan).living() > 1) {
+            familyMember = economy.get(family).leastUtils(this);
+            if (altruism * familyMember.utilityDiff(good1, good2) > utility) {
+                //System.out.println("Family");
+                decision = "Family";
+                utility += altruism * familyMember.utilityDiff(good1, good2);
+            }
         }
-        if (charity * charityCase.utilityDiff(good1, good2) > utility) {
-            //System.out.println("Charity");
-            decision = "Charity";
+        if (economy.size() > 1) {
+            charityCase = economy.getOne(this);
+            if (charity * charityCase.utilityDiff(good1, good2) > utility) {
+                //System.out.println("Charity");
+                decision = "Charity";
+            }
         }
         executeDecision(economy, decision, good1, good2, familyMember, charityCase);
     }
@@ -228,9 +228,6 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
         return currentUtility;
     }
     private void addChild(Individual child) {
-        for (Individual sibling: children) {
-            sibling.siblings.add(child);
-        }
         children.add(child);
         //System.out.println(children.size());
     }
@@ -256,9 +253,6 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
                 }
                 child.parent = null;
             }
-        }
-        for (Individual sibling: siblings) {
-            sibling.siblings.remove(this);
         }
         if (parent != null) {
             parent.children.remove(this);

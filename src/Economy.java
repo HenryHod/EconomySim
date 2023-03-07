@@ -10,10 +10,12 @@ public class Economy {
     private int periodCount;
     public Random random;
     private HashMap<Integer, Family> families;
+    private ArrayList<Integer> familyIndexes;
     public final int childCost  = 20;
     public Economy(int size, Random rand, Statement stmt) {
         random = rand;
         families = new HashMap<>();
+        familyIndexes = new ArrayList<>();
         totalGoods = new int[]{0, 0};
         periodCount = 0;
         statement = stmt;
@@ -22,14 +24,17 @@ public class Economy {
             int apples = childCost * 2; //rand.nextInt(1, 100);
             int oranges = childCost * 2; //rand.nextInt(1, 100);
             families.put(i, new Family( new Individual(rand, i, apples, oranges, 0)));
+            familyIndexes.add(i);
             totalGoods[0] += apples;
             totalGoods[1] += oranges;
         }
     }
     public Individual getOne(Individual self) {
-        return families.entrySet().stream()
-                .findFirst(family -> !Objects.equals(family.getKey(), self.family))
-                .iterator().next().getValue().getOne();
+        Integer nextFamily = familyIndexes.get(random.nextInt(familyIndexes.size()));
+        while (Objects.equals(nextFamily, self.family)) {
+            nextFamily = familyIndexes.get(random.nextInt(familyIndexes.size()));
+        }
+        return families.get(nextFamily).getOne(random);
     }
     public void period() throws SQLException {
         totalGoods = new int[]{0, 0};
@@ -65,19 +70,20 @@ public class Economy {
             }
         }
          */
-        for (Integer family: new HashSet<>(families.keySet())) {
+        for (Integer family: ((ArrayList<Integer>) familyIndexes.clone())) {
             for (Clan clan : families.get(family)) {
                 for (Individual familyMember: clan) {
                     if (familyMember.goods[0] + familyMember.goods[1] <= 0 || familyMember.age >= 3) {
                         families.get(family).remove(familyMember);
                         if (families.get(family).living() <= 0) {
                             families.remove(family);
+                            familyIndexes.remove(family);
                         }
                     }
                 }
             }
         }
-        for (Integer family: new HashSet<>(families.keySet())) {
+        for (Integer family: ((ArrayList<Integer>) familyIndexes.clone())) {
             for (Clan clan : families.get(family)) {
                 for (Individual familyMember: clan) {
                     int[] previousGoods = familyMember.goods.clone();
@@ -123,8 +129,7 @@ public class Economy {
             statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
         }
     }
-    public void add(Integer family,Individual i) {
-        families.get(family).add(i);
+    public void add(Integer family,Individual i) {families.get(family).add(i);
     }
     public Family get(Integer i) {
         return families.get(i);

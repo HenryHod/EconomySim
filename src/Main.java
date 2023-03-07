@@ -20,6 +20,7 @@ public class Main {
         Statement statement = null;
         try {
             conn = DriverManager.getConnection("jdbc:sqlite:simulation.db");
+            conn.setAutoCommit(false);
             statement = conn.createStatement();
             // Do something with the Connection
             statement.executeUpdate("""
@@ -56,11 +57,12 @@ public class Main {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-        Economy economy = new Economy(2000, random, statement);
-        for (int i = 0; i < 100; i++) {
+        Economy economy = new Economy(10000, random, statement);
+        for (int i = 0; i < 15; i++) {
             economy.period();
             economy.print();
         }
+        conn.commit();
         JSONObject val_newer = jo.getJSONObject("periods");
         if (!val_newer.equals(val_older)) {
             //Update value in object

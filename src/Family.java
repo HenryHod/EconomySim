@@ -1,9 +1,6 @@
 
 import java.lang.reflect.Array;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.TreeSet;
+import java.util.*;
 
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.sum;
@@ -30,17 +27,20 @@ public class Family implements Iterable<Clan> {
         }
     }
     private HashMap<Integer, Clan> clans;
+    private ArrayList<Integer> clanIndexes;
     public Family(Individual founder) {
         clans = new HashMap<>();
+        clanIndexes = new ArrayList<>();
         size = 1;
         living = 1;
         clans.put(0, new Clan(founder));
+        clanIndexes.add(founder.clan);
     }
     public Individual leastUtils(Individual i) {
         return clans.get(i.clan).leastUtils();
     }
-    public Individual getOne() {
-        return clans.entrySet().iterator().next().getValue().noCopyIterator().next();
+    public Individual getOne(Random r) {
+        return clans.get(clanIndexes.get(r.nextInt(clanIndexes.size()))).iterator().next();
     }
     public void add(Individual i) {
         //System.out.println("before: " + individuals.size());
@@ -55,6 +55,7 @@ public class Family implements Iterable<Clan> {
             clans.get(child.clan).remove(child);
             child.clan = size;
             clans.put(child.clan, new Clan(child));
+            clanIndexes.add(child.clan);
             size++;
             for (Individual grandchild: child) {
                 clans.get(grandchild.clan).remove(grandchild);
@@ -69,6 +70,7 @@ public class Family implements Iterable<Clan> {
         if (clans.get(i.clan).living() == 0) {
             //System.out.println("Remove Clan: " + i.clan + " From Family: " + i.family + " Last Individual: " + i.id);
             clans.remove(i.clan);
+            clanIndexes.remove(i.clan);
         }
     }
     public double totalUtility() {
@@ -94,8 +96,7 @@ public class Family implements Iterable<Clan> {
     }
     @Override
     public Iterator<Clan> iterator() {
-        HashMap<Integer, Clan> clansCopy = (HashMap<Integer, Clan>) clans.clone();
-        return clansCopy.keySet().stream().map(clansCopy::get).iterator();
+        return ((ArrayList<Integer>) clanIndexes.clone()).stream().map(clans::get).iterator();
     }
     public Clan get(Integer clan) {
         return clans.get(clan);
