@@ -26,11 +26,11 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
         age = 0;
         id = i;
         skills = 3; //rand.nextInt(2,6);
-        altruism = Math.max(Math.min(rand.nextGaussian(0.9, 0.025), 1), 0);
+        altruism = rand.nextDouble(0.5, 1.0);
         charity = 0.5; //rand.nextDouble(1.0);
-        impatience = Math.max(Math.min(rand.nextGaussian(0.75, 0.05), 1), 0);
-        double applePreference = 0.49; //rand.nextDouble(1.0);
-        preferences = new double[]{applePreference, 0.49};//rand.nextDouble(1.0 - applePreference)};
+        impatience = rand.nextDouble(0.5, 1.0);
+        double applePreference = 0.45; //rand.nextDouble(1.0);
+        preferences = new double[]{applePreference, 0.45};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
@@ -43,12 +43,12 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
         clan = p.clan;
         age = 0;
         id = i;
-        skills = 4; //rand.nextInt(Math.max(parent.skills - 2, 2), Math.min(parent.skills + 2, 6));
-        altruism = Math.max(Math.min(rand.nextGaussian(0.9, 0.025), 1), 0);
+        skills = 2; //rand.nextInt(Math.max(parent.skills - 2, 2), Math.min(parent.skills + 2, 6));
+        altruism = p.altruism; //Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
         charity = 0.5; //Math.max(Math.min(rand.nextGaussian(parent.charity, 0.05), 1), 0);
-        impatience = Math.max(Math.min(rand.nextGaussian(parent.impatience, 0.01), 1), 0);
-        double applePreference = 0.49;//rand.nextDouble(1.0);
-        preferences = new double[]{applePreference, 0.49};//rand.nextDouble(1.0 - applePreference)};
+        impatience = p.impatience; //Math.max(Math.min(rand.nextGaussian(0.75, 0.05), 1), 0);
+        double applePreference = 0.275;//rand.nextDouble(1.0);
+        preferences = new double[]{applePreference, 0.275};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
@@ -169,7 +169,7 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
             //System.out.println((skills + 1) * goodsSelf[1] + " > or < " + (skills * (goods[1]) + goodsFuture[1]));
             //System.out.println(goods[0] + " " + goods[1]);
             //System.out.println("child utility: " + altruism * basicUtility(10, 10) + "self utility: " + utilityDiff(10, 10));
-            if ((oranges >= economy.childCost & apples >= economy.childCost) & (altruism * basicUtility(economy.childCost / 2, economy.childCost / 2) > utilityDiff(economy.childCost / 2, economy.childCost / 2))) {
+            if ((oranges >= economy.childCost / 2 & apples >= economy.childCost / 2) & (altruism * basicUtility(economy.childCost / 2, economy.childCost / 2) > utilityDiff(economy.childCost / 2, economy.childCost / 2))) {
                 //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
                 //System.out.println("family size: " + economy.get(family).size());
                 //System.out.println("Before: " + economy.get(family).size());

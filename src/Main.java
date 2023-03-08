@@ -58,8 +58,8 @@ public class Main {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-        Economy economy = new Economy(10000, random, statement);
-        for (int i = 0; i < 15; i++) {
+        Economy economy = new Economy(20000, random, statement);
+        for (int i = 0; i < 1; i++) {
             economy.period();
             economy.print();
         }

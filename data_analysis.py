@@ -1,10 +1,10 @@
 import sqlite3
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import statsmodels.api as sm
-import copy
+from mpl_toolkits import mplot3d
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
 conn = sqlite3.connect(r"simulation.db")
 cursor = conn.cursor()
 df = pd.read_sql("SELECT * FROM simulations", conn)
@@ -33,20 +33,29 @@ for column1 in df.columns[:21]:
             df[f"{column1} * {column2}"] = df[column1] * df[column2]
 df.replace([np.inf, -np.inf], np.nan, inplace=True)
 df.dropna(inplace=True)
-print(df.head(10))
+#print(df)
 #g = sns.FacetGrid(df.query("generation == 0"), col="age")
-plt.plot(np.unique(df["period"]), df.groupby("period")["id"].count().pct_change())
-plt.plot(np.unique(df["period"]), df.groupby("period")["altruism"].mean())
-#last_period_df = df.groupby(["family", ""])
-"""
-model = sm.OLS(df["new_children"], df.drop(bad_columns, axis = 1))
-result = model.fit(cov_type="HC0")
-print(result.summary())
-"""
-age0_df = df.query("age == 0").query("generation == 0")
+#plt.plot(np.unique(df["period"]), df.groupby("period")["id"].count().pct_change())
+#model = sm.OLS(df["new_children"], df.drop(bad_columns, axis = 1))
+#result = model.fit(cov_type="HC0")
+#print(result.summary())
+age0_df = df.query("period == 1").query("generation == 0")
+ax = plt.figure().add_subplot(projection='3d')
+x = age0_df["altruism"]
+y = age0_df["impatience"]
+z = age0_df["new_children"]
+xi = np.linspace(min(x), max(x))
+yi = np.linspace(min(y), max(y))
+X, Y = np.meshgrid(xi, yi)
+Z = griddata((x, y), z, (X.flatten(), Y.flatten()), 'nearest').reshape(50, 50)
+ax.contourf(X, Y, Z)
 #plt.scatter(age0_df["altruism"], jitter(age0_df["new_children"], 0), c=age0_df["impatience"])
 #g.map(sns.scatterplot, "altruism","log children")
 #ax.colorbar()
 #plt.xlim(0.7, 1)
 #plt.colorbar()
+ax.set_xlabel('altruism')
+ax.set_ylabel('impatience')
+ax.set_zlabel('new_children')
+ax.set_ylim(0.5, 1)
 plt.show()
