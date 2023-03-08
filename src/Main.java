@@ -33,6 +33,7 @@ public class Main {
                     CREATE TABLE simulations (
                     id INTEGER PRIMARY KEY,
                     period INTEGER NOT NULL,
+                    clan INTEGER NOT NULL,
                     family INTEGER NOT NULL,
                     generation INTEGER NOT NULL,
                     age INTEGER NOT NULL,

@@ -33,12 +33,16 @@ for column1 in df.columns[:21]:
             df[f"{column1} * {column2}"] = df[column1] * df[column2]
 df.replace([np.inf, -np.inf], np.nan, inplace=True)
 df.dropna(inplace=True)
-print(df)
+print(df.head(10))
 #g = sns.FacetGrid(df.query("generation == 0"), col="age")
 plt.plot(np.unique(df["period"]), df.groupby("period")["id"].count().pct_change())
+plt.plot(np.unique(df["period"]), df.groupby("period")["altruism"].mean())
+#last_period_df = df.groupby(["family", ""])
+"""
 model = sm.OLS(df["new_children"], df.drop(bad_columns, axis = 1))
 result = model.fit(cov_type="HC0")
 print(result.summary())
+"""
 age0_df = df.query("age == 0").query("generation == 0")
 #plt.scatter(age0_df["altruism"], jitter(age0_df["new_children"], 0), c=age0_df["impatience"])
 #g.map(sns.scatterplot, "altruism","log children")

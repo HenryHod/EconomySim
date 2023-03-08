@@ -26,9 +26,9 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
         age = 0;
         id = i;
         skills = 3; //rand.nextInt(2,6);
-        altruism = Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
+        altruism = Math.max(Math.min(rand.nextGaussian(0.9, 0.025), 1), 0);
         charity = 0.5; //rand.nextDouble(1.0);
-        impatience = Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
+        impatience = Math.max(Math.min(rand.nextGaussian(0.75, 0.05), 1), 0);
         double applePreference = 0.49; //rand.nextDouble(1.0);
         preferences = new double[]{applePreference, 0.49};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
@@ -44,9 +44,9 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
         age = 0;
         id = i;
         skills = 4; //rand.nextInt(Math.max(parent.skills - 2, 2), Math.min(parent.skills + 2, 6));
-        altruism = Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
+        altruism = Math.max(Math.min(rand.nextGaussian(0.9, 0.025), 1), 0);
         charity = 0.5; //Math.max(Math.min(rand.nextGaussian(parent.charity, 0.05), 1), 0);
-        impatience = Math.max(Math.min(rand.nextGaussian(0.75, 0.05), 1), 0);
+        impatience = Math.max(Math.min(rand.nextGaussian(parent.impatience, 0.01), 1), 0);
         double applePreference = 0.49;//rand.nextDouble(1.0);
         preferences = new double[]{applePreference, 0.49};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
@@ -296,6 +296,7 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
                 + ", " + id
                 + ", " + age
                 + ", " + children.size()
+                + ", " + clan
                 + ", " + altruism
                 + ", " + impatience
                 + ", " + charity
