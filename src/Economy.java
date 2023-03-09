@@ -20,8 +20,8 @@ public class Economy {
         periodCount = 0;
         statement = stmt;
         for (int i = 0; i < size; i++) {
-            int apples = (childCost / 2) * 20; //rand.nextInt(1, 100);
-            int oranges = (childCost / 2) * 20; //rand.nextInt(1, 100);
+            int apples = (childCost / 2) * rand.nextInt(1, 21);
+            int oranges = (childCost / 2) * rand.nextInt(1, 21);
             families.put(i, new Family(new Individual(rand, i, apples, oranges, 0)));
             familyIndexes.add(i);
             totalGoods[0] += apples;

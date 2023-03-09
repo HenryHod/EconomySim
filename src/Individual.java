@@ -25,12 +25,12 @@ public class Individual implements Comparable<Individual>, Iterable<Individual>{
         clan = 0;
         age = 0;
         id = i;
-        skills = 3; //rand.nextInt(2,6);
+        skills = rand.nextInt(2,11);
         altruism = rand.nextDouble(0.5, 1.0);
-        charity = 0.5; //rand.nextDouble(1.0);
+        charity = rand.nextDouble(1.0);
         impatience = rand.nextDouble(0.5, 1.0);
-        double applePreference = 0.45; //rand.nextDouble(1.0);
-        preferences = new double[]{applePreference, 0.45};//rand.nextDouble(1.0 - applePreference)};
+        double applePreference = rand.nextDouble(1.0);
+        preferences = new double[]{applePreference, rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};

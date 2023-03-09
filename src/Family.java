@@ -40,7 +40,7 @@ public class Family implements Iterable<Clan> {
         return clans.get(i.clan).leastUtils();
     }
     public Individual getOne(Random r) {
-        return clans.get(clanIndexes.get(r.nextInt(clanIndexes.size()))).iterator().next();
+        return clans.get(clanIndexes.get(r.nextInt(clanIndexes.size()))).leastUtils();
     }
     public void add(Individual i) {
         //System.out.println("before: " + individuals.size());

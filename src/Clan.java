@@ -57,6 +57,6 @@ public class Clan implements Iterable<Individual>{
     @Override
     public Iterator<Individual> iterator() {
         TreeSet<Individual> individualsCopy = (TreeSet<Individual>) individuals.clone();
-        return individualsCopy.iterator();
+        return individualsCopy.descendingIterator();
     }
 }
