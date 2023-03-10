@@ -33,6 +33,7 @@ public class Main {
                     CREATE TABLE simulations (
                     id INTEGER PRIMARY KEY,
                     period INTEGER NOT NULL,
+                    clan INTEGER NOT NULL,
                     family INTEGER NOT NULL,
                     generation INTEGER NOT NULL,
                     age INTEGER NOT NULL,
@@ -57,7 +58,7 @@ public class Main {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-        Economy economy = new Economy(20000, random, statement);
+        Economy economy = new Economy(500000, random, statement);
         for (int i = 0; i < 1; i++) {
             economy.period();
             economy.print();

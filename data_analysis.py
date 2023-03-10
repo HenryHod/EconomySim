@@ -4,12 +4,14 @@ import numpy as np
 import statsmodels.api as sm
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from scipy.interpolate import griddata
 conn = sqlite3.connect(r"simulation.db")
 cursor = conn.cursor()
 df = pd.read_sql("SELECT * FROM simulations", conn)
 def jitter(values,j):
     return values + np.random.normal(j,0.1,values.shape)
+"""
 family_size_dict = df.groupby(["family", "period"])["id"].count().to_dict()
 df["family size"] = df.apply(lambda x: family_size_dict[(x['family'], x['period'])], axis = 1)
 df["total goods"] = df["good1"] + df["good2"]
@@ -39,23 +41,25 @@ df.dropna(inplace=True)
 #model = sm.OLS(df["new_children"], df.drop(bad_columns, axis = 1))
 #result = model.fit(cov_type="HC0")
 #print(result.summary())
+"""
 age0_df = df.query("period == 1").query("generation == 0")
-ax = plt.figure().add_subplot(projection='3d')
 x = age0_df["altruism"]
 y = age0_df["impatience"]
 z = age0_df["new_children"]
 xi = np.linspace(min(x), max(x))
 yi = np.linspace(min(y), max(y))
 X, Y = np.meshgrid(xi, yi)
-Z = griddata((x, y), z, (X.flatten(), Y.flatten()), 'nearest').reshape(50, 50)
-ax.contourf(X, Y, Z)
+Z = griddata((x, y), z, (X.flatten(), Y.flatten()), 'linear').reshape(50, 50)
+print(type(Z))
+fig = go.Figure(go.Surface(x = X, y = Y, z = Z))
 #plt.scatter(age0_df["altruism"], jitter(age0_df["new_children"], 0), c=age0_df["impatience"])
 #g.map(sns.scatterplot, "altruism","log children")
 #ax.colorbar()
 #plt.xlim(0.7, 1)
 #plt.colorbar()
-ax.set_xlabel('altruism')
-ax.set_ylabel('impatience')
-ax.set_zlabel('new_children')
-ax.set_ylim(0.5, 1)
-plt.show()
+#ax.set_xlabel('altruism')
+#ax.set_ylabel('impatience')
+#ax.set_zlabel('new_children')
+#ax.set_ylim(0.5, 1)
+#plt.show()
+fig.show()

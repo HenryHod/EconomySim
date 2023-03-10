@@ -8,24 +8,6 @@ import static java.lang.Double.sum;
 public class Family implements Iterable<Clan> {
     private int size;
     private int living;
-    public static class IndividualComparator implements Comparator<Individual> {
-
-        @Override
-        public int compare(Individual o1, Individual o2) {
-            if (o1.parent != null || o2.parent != null) {
-                if (o1.isChild(o2) | o1.isGrandchild(o2)) {
-                    return (int) NEGATIVE_INFINITY;
-                } else if (o2.isChild(o1) | o2.isGrandchild(o1)) {
-                    return (int) Double.POSITIVE_INFINITY;
-                } else if (o1.isSibling(o2)) {
-                    return (int) NEGATIVE_INFINITY;
-                }
-            } else if (o1.getCurrentUtility() == 0 && o2.getCurrentUtility() == 0) {
-                return o1.id - o2.id;
-            }
-            return Double.compare(o1.getCurrentUtility(), o2.getCurrentUtility());
-        }
-    }
     private HashMap<Integer, Clan> clans;
     private ArrayList<Integer> clanIndexes;
     public Family(Individual founder) {
@@ -40,7 +22,7 @@ public class Family implements Iterable<Clan> {
         return clans.get(i.clan).leastUtils();
     }
     public Individual getOne(Random r) {
-        return clans.get(clanIndexes.get(r.nextInt(clanIndexes.size()))).iterator().next();
+        return clans.get(clanIndexes.get(r.nextInt(clanIndexes.size()))).leastUtils();
     }
     public void add(Individual i) {
         //System.out.println("before: " + individuals.size());
@@ -51,20 +33,23 @@ public class Family implements Iterable<Clan> {
         //System.out.println(i.id);
     }
     public void remove(Individual i) {
-        for (Individual child: i) {
-            clans.get(child.clan).remove(child);
+        Clan currentClan = clans.get(i.clan);
+        for (Integer childIndex: i) {
+            Individual child = currentClan.get(childIndex);
+            currentClan.remove(child);
             child.clan = size;
             clans.put(child.clan, new Clan(child));
             clanIndexes.add(child.clan);
             size++;
-            for (Individual grandchild: child) {
-                clans.get(grandchild.clan).remove(grandchild);
+            for (Integer grandchildIndex: child) {
+                Individual grandchild = currentClan.get(grandchildIndex);
+                currentClan.remove(grandchild);
                 grandchild.clan = child.clan;
                 clans.get(child.clan).add(grandchild);
             }
         }
-        clans.get(i.clan).remove(i);
-        i.removeSelf();
+        currentClan.remove(i);
+        i.removeSelf(currentClan);
         living -= 1;
         //System.out.println(clans.get(i.clan).living());
         if (clans.get(i.clan).living() == 0) {
