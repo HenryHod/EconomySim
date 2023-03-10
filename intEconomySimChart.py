@@ -5,7 +5,7 @@ import pandas as pd
 from threading import Lock
 import numpy as np
 from scipy.interpolate import griddata
-from scipy.ndimage import laplace
+from scipy.ndimage import gaussian_filter
 
 conn = sqlite3.connect(r"simulation.db", check_same_thread=False)
 cursor = conn.cursor()
@@ -16,6 +16,7 @@ app = Dash(__name__)
 
 app.layout = html.Div([
     dcc.Graph(id="figure"),
+    html.Div([
     html.H4("Returns to Scale"),
     dcc.Slider(
         id='scale-slider',
@@ -36,7 +37,10 @@ app.layout = html.Div([
         id='skills-slider',
         min = 2, max=10, step=1,
         value=3)
-        ]
+    ],
+    style={"width":"-webkit-fill-available"})
+    ],
+    style={"display":"flex"}
 )
 
 @app.callback(
@@ -55,16 +59,16 @@ def set_scale(scale_input, endow_input, char_input, skills_input):
     AND charity < {char_input + 0.1} AND charity > {char_input - 0.1}
     AND skills == {skills_input}
     """).fetchall(), columns = ["altruism", "impatience", "child_per_dollar", "total_goods"])
-    print(scale_df.head())
     lock.release()
+    print(scale_df.head())
     x = scale_df["altruism"]
     y = scale_df["impatience"]
     z = scale_df["child_per_dollar"]
     xi = np.linspace(min(x), max(x)+0.1)
     yi = np.linspace(min(y), max(y))
     X, Y = np.meshgrid(xi, yi)
-    Z = laplace(griddata((x, y), z, (X.flatten(), Y.flatten()), 'linear').reshape(50, 50), 1)
-    goods = laplace(griddata((x, y), scale_df['total_goods'], (X.flatten(), Y.flatten()), 'linear').reshape(50, 50), 1)
+    Z = gaussian_filter(griddata((x, y), z, (X.flatten(), Y.flatten()), 'nearest').reshape(50, 50), sigma=3)
+    goods = gaussian_filter(griddata((x, y), scale_df['total_goods'], (X.flatten(), Y.flatten()), 'nearest').reshape(50, 50), sigma=3)
     layout = go.Layout(width=900,
                        height=900)
     fig = go.Figure(go.Surface(x = X, y = Y, z = Z, surfacecolor=goods, colorbar=dict(title = "Future Goods")), layout)

@@ -1,13 +1,11 @@
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.TreeSet;
+import java.util.*;
 
 
 public class Clan implements Iterable<Individual>{
     private int size;
     private int living;
     private TreeSet<Individual> individuals;
+    private HashMap<Integer, Individual> individualIndex;
     public static class IndividualComparator implements Comparator<Individual> {
 
         @Override
@@ -17,9 +15,11 @@ public class Clan implements Iterable<Individual>{
     }
     public Clan(Individual founder) {
         individuals = new TreeSet<>(new IndividualComparator());
+        individualIndex = new HashMap<>();
         size = 1;
         living = 1;
         individuals.add(founder);
+        individualIndex.put(founder.id, founder);
     }
     public Individual leastUtils() {
         return individuals.first();
@@ -27,6 +27,7 @@ public class Clan implements Iterable<Individual>{
     public void add(Individual i) {
         //System.out.println("before: " + individuals.size());
         individuals.add(i);
+        individualIndex.put(i.id, i);
         size++;
         living++;
         //System.out.println("after: " + individuals.size());
@@ -34,6 +35,7 @@ public class Clan implements Iterable<Individual>{
     }
     public void remove(Individual i) {
         individuals.remove(i);
+        individualIndex.remove(i.id);
         living -= 1;
     }
     public double totalUtility() {
@@ -58,5 +60,8 @@ public class Clan implements Iterable<Individual>{
     public Iterator<Individual> iterator() {
         TreeSet<Individual> individualsCopy = (TreeSet<Individual>) individuals.clone();
         return individualsCopy.descendingIterator();
+    }
+    public Individual get(Integer n) {
+        return individualIndex.get(n);
     }
 }
