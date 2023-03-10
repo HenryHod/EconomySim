@@ -5,14 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f2a4578c-926e-4859-8999-a333923bdfbf" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/EconomySim/Economy.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/EconomySim/Economy.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/EconomySim/Family$IndividualComparator.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/EconomySim/Family$IndividualComparator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/EconomySim/Family$IndividualComparator.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/EconomySim/Family.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/EconomySim/Family.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/EconomySim/Individual.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/EconomySim/Individual.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/EconomySim/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/EconomySim/Main.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/simulation.db" beforeDir="false" afterPath="$PROJECT_DIR$/simulation.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Clan.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clan.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Economy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Economy.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Family.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Family.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Individual.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Individual.java" afterDir="false" />
@@ -89,6 +90,17 @@
     </task>
     <servers />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
@@ -108,10 +120,9 @@
           <option name="timeStamp" value="36" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <condition expression="compare(o1, o2) == 0 &amp;&amp; o1 != o2" language="JAVA" />
-          <url>file://$PROJECT_DIR$/src/Family.java</url>
-          <line>16</line>
-          <option name="timeStamp" value="39" />
+          <url>file://$PROJECT_DIR$/src/Economy.java</url>
+          <line>15</line>
+          <option name="timeStamp" value="40" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
