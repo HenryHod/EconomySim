@@ -1,7 +1,6 @@
-/.idea/
 *.class
 /src/simulation.db
 *.db
 *.json
 /out/
-/.idea/
+/.idea/*
