@@ -40,6 +40,8 @@ public class Family implements Iterable<Clan> {
             child.clan = size;
             clans.put(child.clan, new Clan(child));
             clanIndexes.add(child.clan);
+            i.inheritance(child);
+            child.resetParent();
             size++;
             for (Integer grandchildIndex: child) {
                 Individual grandchild = currentClan.get(grandchildIndex);
@@ -48,11 +50,13 @@ public class Family implements Iterable<Clan> {
                 clans.get(child.clan).add(grandchild);
             }
         }
+        if (i.hasParent()) {
+            i.parent.deleteChild(i.id);
+        }
         currentClan.remove(i);
-        i.removeSelf(currentClan);
         living -= 1;
         //System.out.println(clans.get(i.clan).living());
-        if (clans.get(i.clan).living() == 0) {
+        if (currentClan.living() == 0) {
             //System.out.println("Remove Clan: " + i.clan + " From Family: " + i.family + " Last Individual: " + i.id);
             clans.remove(i.clan);
             clanIndexes.remove(i.clan);

@@ -10,7 +10,7 @@ public class Clan implements Iterable<Individual>{
 
         @Override
         public int compare(Individual o1, Individual o2) {
-                return o1.id - o2.id;
+                return o2.id - o1.id;
         }
     }
     public Clan(Individual founder) {

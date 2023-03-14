@@ -4,6 +4,7 @@ import java.util.*;
 
 public class Individual implements Comparable<Individual>, Iterable<Integer>{
     double currentUtility;
+    double currentSelfUtility;
     int age;
     final int id;
     Integer family;
@@ -119,14 +120,14 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
             decision = "Production";
             utility += impatience * utilityFutDiff(good1, good2);
         }
-        if (familyMember != null) {
+        if (familyMember != null && utility < altruism) {
             if (altruism * familyMember.utilityDiff(good1, good2) > utility) {
                 //System.out.println("Family");
                 decision = "Family";
                 utility += altruism * familyMember.utilityDiff(good1, good2);
             }
         }
-        if (charityCase != null) {
+        if (charityCase != null && utility < charity) {
             if (charity * charityCase.utilityDiff(good1, good2) > utility) {
                 //System.out.println("Charity");
                 decision = "Charity";
@@ -135,24 +136,27 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         executeDecision(economy, decision, good1, good2, familyMember, charityCase);
     }
     private void executeDecision(Economy economy, String decision, int good1, int good2, Individual familyMember, Individual charityCase) {
-        double utility = utilityDiff(good1, good2);
         if (Objects.equals(decision, "Self")) {
             goodsSelf[0] += good1;
             goodsSelf[1] += good2;
+            double utility = utilityDiff(good1, good2);
+            currentSelfUtility += utility;
+            currentUtility += utility;
         } else if (Objects.equals(decision, "Production")) {
             int r = economy.random.nextInt(Math.max(0, skills - 2), Math.min(skills + 2, 10));
             goodsFuture[0] += good1 * skills;
             goodsFuture[1] += good2 * skills;
         } else if (Objects.equals(decision, "Family")) {
-            utility = altruism * familyMember.utilityDiff(good1, good2);
+            double utility = familyMember.utilityDiff(good1, good2);
+            currentUtility += altruism * utility;
             familyMember.addGoods(good1, good2);
-            familyMember.currentUtility += familyMember.utilityDiff(good1, good2);
+            familyMember.currentUtility += utility;
         } else if (Objects.equals(decision, "Charity")) {
-            utility = charity * charityCase.utilityDiff(good1, good2);
+            double utility = charityCase.utilityDiff(good1, good2);
+            currentUtility = charity * utility;
             charityCase.addGoods(good1, good2);
-            charityCase.currentUtility += charityCase.utilityDiff(good1, good2);
+            charityCase.currentUtility += utility;
         }
-        currentUtility += utility;
     }
     public void individualTurn(Economy economy) {
         goodsSelf = new int[]{0, 0};
@@ -161,6 +165,8 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         int oranges = goods[1];
         Individual familyMember = null;
         Individual charityCase = null;
+        currentSelfUtility = 0;
+        currentUtility = 0;
         if (economy.get(family).get(clan).living() > 1) {
             familyMember = economy.get(family).leastUtils(this);
         }
@@ -173,7 +179,7 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
             //System.out.println((skills + 1) * goodsSelf[1] + " > or < " + (skills * (goods[1]) + goodsFuture[1]));
             //System.out.println(goods[0] + " " + goods[1]);
             //System.out.println("child utility: " + altruism * basicUtility(10, 10) + "self utility: " + utilityDiff(10, 10));
-            if ((oranges >= economy.childCost / 2 & apples >= economy.childCost / 2) & (altruism * basicUtility(economy.childCost / 2, economy.childCost / 2) > utilityDiff(economy.childCost / 2, economy.childCost / 2))) {
+            if ((oranges >= economy.childCost / 2 && apples >= economy.childCost / 2) && (altruism * basicUtility(economy.childCost / 2, economy.childCost / 2) > utilityDiff(economy.childCost / 2, economy.childCost / 2))) {
                 //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
                 //System.out.println("family size: " + economy.get(family).size());
                 //System.out.println("Before: " + economy.get(family).size());
@@ -208,16 +214,16 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         return Math.pow(goodsSelf[0] + good1 + 1, preferences[0]) * Math.pow(goodsSelf[1] + good2 + 1, preferences[1]) - 1;
     }
     private double utilitySelf() {
-            return Math.pow(goodsSelf[0] + 1, preferences[0]) * Math.pow(goodsSelf[1] + 1, preferences[1]) - 1;
+            return currentSelfUtility;
     }
     private double utilityDiff(int good1, int good2) {
         //System.out.println(utilitySelf(good1, good2) + " " + utilitySelf());
-        return (utilitySelf(good1, good2) - utilitySelf());
+        return good1 * preferences[0] * Math.pow(goodsSelf[0], 1 - preferences[0])  * Math.pow(goodsSelf[1], preferences[1]) +
+                good2 * preferences[1] * Math.pow(goodsSelf[0], preferences[0]) * Math.pow(goodsSelf[1], 1 - preferences[1]);
     }
     private double utilityFutDiff(int good1, int good2) {
-        double previous = (Math.pow(goodsFuture[0] + 1, preferences[0]) * Math.pow(goodsFuture[1] + 1, preferences[1]) - 1);
-        double current = (Math.pow(goodsFuture[0] + good1 * skills + 2, preferences[0]) * Math.pow(goodsFuture[1] + good2 * skills + 1, preferences[1]) - 1);
-        return (current - previous)/skills;
+        return good1 * preferences[0] * Math.pow(goodsFuture[0], 1 - preferences[0])  * Math.pow(goodsFuture[1], preferences[1]) +
+                good2 * preferences[1] * Math.pow(goodsFuture[0], preferences[0]) * Math.pow(goodsFuture[1], 1 - preferences[1]);
     }
     private double ln(int x) {
         return Math.log(x + 1);
@@ -252,21 +258,6 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     }
 
      */
-    public void removeSelf(Clan clan) {
-        if (children.size() > 0) {
-            for (Integer childIndex: children) {
-                Individual child = clan.get(childIndex);
-                if ((goods[0] > 0 | goods[1] > 0)) {
-
-                    child.addGoods(goods[0] / children.size(), goods[1] / children.size());
-                }
-                child.parent = null;
-            }
-        }
-        if (parent != null) {
-            parent.children.remove(this);
-        }
-    }
     public void addPeriod() {
         age++;
     }
@@ -306,6 +297,8 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
                 + ", " + skills
                 + ", " + goods[0]
                 + ", " + goods[1]
+                + ", " + goodsSelf[0]
+                + ", " + goodsSelf[1]
                 + ", " + preferences[0]
                 + ", " + preferences[1]
                 + ", " + currentUtility;
@@ -319,6 +312,18 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
             return parent == i.parent;
         }
         return false;
+    }
+    public void inheritance(Individual child) {
+        child.addGoods(goods[0] / children.size(), goods[1] / children.size());
+    }
+    public void resetParent() {
+        this.parent = null;
+    }
+    public void deleteChild(Integer childIndex) {
+        children.remove(childIndex);
+    }
+    public boolean hasParent() {
+        return parent != null;
     }
 
 

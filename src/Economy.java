@@ -54,6 +54,8 @@ public class Economy {
                                         skills,
                                         future_good1,
                                         future_good2,
+                                        self_good1,
+                                        self_good2,
                                         good1_pref,
                                         good2_pref,
                                         utility)
@@ -116,6 +118,8 @@ public class Economy {
                                                         skills,
                                                         future_good1,
                                                         future_good2,
+                                                        self_good1,
+                                                        self_good2,
                                                         good1_pref,
                                                         good2_pref,
                                                         utility)

@@ -47,6 +47,8 @@ public class Main {
                     good2 INTEGER NOT NULL,
                     future_good1 INTEGER NOT NULL,
                     future_good2 INTEGER NOT NULL,
+                    self_good1 INTEGER NOT NULL,
+                    self_good2 INTEGER NOT NULL,
                     good1_pref INTEGER NOT NULL,
                     good2_pref INTEGER NOT NULL,
                     utility DOUBLE NOT NULL
@@ -58,7 +60,7 @@ public class Main {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-        Economy economy = new Economy(500000, random, statement);
+        Economy economy = new Economy(200000, random, statement);
         for (int i = 0; i < 1; i++) {
             economy.period();
             economy.print();
