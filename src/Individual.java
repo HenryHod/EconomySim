@@ -1,5 +1,3 @@
-import org.json.JSONObject;
-
 import java.util.*;
 
 public class Individual implements Comparable<Individual>, Iterable<Integer>{
@@ -115,7 +113,8 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         //System.out.println("future consumption: " + goodsFuture[0] + " " + goodsFuture[1]);
         //System.out.println("charity: " + charity * charityCase.utilityDiff(good1, good2));
         //System.out.println("Family: " + altruism * familyMember.utilityDiff(good1, good2));
-        if (impatience * utilityFutDiff(good1, good2) > utility) {
+        //System.out.println(impatience * utilityFutDiff(good1, good2) + " " + utilitySkillsDiff(good1, good2));
+        if (impatience * utilityFutDiff(good1, good2) > utilitySkillsDiff(good1, good2)) {
             //System.out.println("Production");
             decision = "Production";
             utility += impatience * utilityFutDiff(good1, good2);
@@ -218,12 +217,16 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     }
     private double utilityDiff(int good1, int good2) {
         //System.out.println(utilitySelf(good1, good2) + " " + utilitySelf());
-        return good1 * preferences[0] * Math.pow(goodsSelf[0], 1 - preferences[0])  * Math.pow(goodsSelf[1], preferences[1]) +
-                good2 * preferences[1] * Math.pow(goodsSelf[0], preferences[0]) * Math.pow(goodsSelf[1], 1 - preferences[1]);
+        return good1 * preferences[0] * Math.pow(goodsSelf[0] + 1, preferences[0] - 1)  * Math.pow(goodsSelf[1] + 1, preferences[1]) +
+                good2 * preferences[1] * Math.pow(goodsSelf[0] + 1, preferences[0]) * Math.pow(goodsSelf[1] + 1, preferences[1] - 1);
+    }
+    private double utilitySkillsDiff(int good1, int good2) {
+        return good1 * preferences[0] * Math.pow(goodsSelf[0] + skills , preferences[0] - 1)  * Math.pow(goodsSelf[1] + skills, preferences[1]) +
+                good2 * preferences[1] * Math.pow(goodsSelf[0] + skills, preferences[0]) * Math.pow(goodsSelf[1] + skills, preferences[1] - 1);
     }
     private double utilityFutDiff(int good1, int good2) {
-        return good1 * preferences[0] * Math.pow(goodsFuture[0], 1 - preferences[0])  * Math.pow(goodsFuture[1], preferences[1]) +
-                good2 * preferences[1] * Math.pow(goodsFuture[0], preferences[0]) * Math.pow(goodsFuture[1], 1 - preferences[1]);
+        return good1 * preferences[0] * Math.pow(goodsFuture[0] + skills + 1 , preferences[0] - 1)  * Math.pow(goodsFuture[1] + skills + 1, preferences[1]) +
+                good2 * preferences[1] * Math.pow(goodsFuture[0] + skills + 1, preferences[0]) * Math.pow(goodsFuture[1] + skills + 1, preferences[1] - 1);
     }
     private double ln(int x) {
         return Math.log(x + 1);
@@ -260,21 +263,6 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
      */
     public void addPeriod() {
         age++;
-    }
-    public void addInfo(JSONObject familyJson) {
-        familyJson.put(String.valueOf(id), new JSONObject());
-        familyJson.getJSONObject(String.valueOf(id)).put("id", id);
-        familyJson.getJSONObject(String.valueOf(id)).put("children", children.size());
-        familyJson.getJSONObject(String.valueOf(id)).put("altruism", altruism);
-        familyJson.getJSONObject(String.valueOf(id)).put("charity", charity);
-        familyJson.getJSONObject(String.valueOf(id)).put("impatience", impatience);
-        familyJson.getJSONObject(String.valueOf(id)).put("skills", skills);
-        familyJson.getJSONObject(String.valueOf(id)).put("good1 pref", preferences[0]);
-        familyJson.getJSONObject(String.valueOf(id)).put("good2 pref", preferences[1]);
-        familyJson.getJSONObject(String.valueOf(id)).put("good1", goods[0]);
-        familyJson.getJSONObject(String.valueOf(id)).put("good2", goods[1]);
-        familyJson.getJSONObject(String.valueOf(id)).put("future good1", goodsFuture[0]);
-        familyJson.getJSONObject(String.valueOf(id)).put("future good2", goodsFuture[1]);
     }
     public int goodTotals() {
         return goods[0] + goods[1];
