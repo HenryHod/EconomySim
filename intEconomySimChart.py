@@ -12,7 +12,7 @@ conn = sqlite3.connect(r"simulation.db", check_same_thread=False)
 cursor = conn.cursor()
 lock = Lock()
 df = pd.read_sql("SELECT * FROM simulations", conn)
-childcost = 10
+childcost = 20
 
 app = Dash(__name__)
 

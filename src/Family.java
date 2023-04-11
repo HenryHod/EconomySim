@@ -10,6 +10,7 @@ public class Family implements Iterable<Clan> {
     private int living;
     private HashMap<Integer, Clan> clans;
     private ArrayList<Integer> clanIndexes;
+    private 
     public Family(Individual founder) {
         clans = new HashMap<>();
         clanIndexes = new ArrayList<>();
