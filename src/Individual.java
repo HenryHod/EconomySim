@@ -3,6 +3,7 @@ import java.util.*;
 public class Individual implements Comparable<Individual>, Iterable<Integer>{
     double currentUtility;
     double currentSelfUtility;
+    int birth;
     int age;
     final int id;
     Integer family;
@@ -22,6 +23,7 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     public Individual(Random rand, Integer familyNumber, int good1, int good2, int i) {
         family = familyNumber;
         clan = 0;
+        birth = 0;
         age = 0;
         id = i;
         skills = rand.nextInt(2,11);
@@ -40,6 +42,7 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         family = familyNumber;
         parent = p;
         clan = p.clan;
+        birth = p.birth + p.age;
         age = 0;
         id = i;
         skills = 2; //rand.nextInt(Math.max(parent.skills - 2, 2), Math.min(parent.skills + 2, 6));
@@ -132,13 +135,12 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
                 decision = "Charity";
             }
         }
-        executeDecision(economy, decision, good1, good2, familyMember, charityCase);
+        executeDecision(economy, decision, good1, good2, familyMember, charityCase, utility);
     }
-    private void executeDecision(Economy economy, String decision, int good1, int good2, Individual familyMember, Individual charityCase) {
+    private void executeDecision(Economy economy, String decision, int good1, int good2, Individual familyMember, Individual charityCase,Double utility) {
         if (Objects.equals(decision, "Self")) {
             goodsSelf[0] += good1;
             goodsSelf[1] += good2;
-            double utility = utilityDiff(good1, good2);
             currentSelfUtility += utility;
             currentUtility += utility;
         } else if (Objects.equals(decision, "Production")) {
@@ -146,12 +148,10 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
             goodsFuture[0] += good1 * skills;
             goodsFuture[1] += good2 * skills;
         } else if (Objects.equals(decision, "Family")) {
-            double utility = familyMember.utilityDiff(good1, good2);
             currentUtility += altruism * utility;
             familyMember.addGoods(good1, good2);
             familyMember.currentUtility += utility;
         } else if (Objects.equals(decision, "Charity")) {
-            double utility = charityCase.utilityDiff(good1, good2);
             currentUtility = charity * utility;
             charityCase.addGoods(good1, good2);
             charityCase.currentUtility += utility;
