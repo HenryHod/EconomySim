@@ -3,6 +3,7 @@ import java.util.*;
 public class Individual implements Comparable<Individual>, Iterable<Integer>{
     double currentUtility;
     double currentSelfUtility;
+    int birth;
     int age;
     final int id;
     Integer family;
@@ -23,10 +24,11 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         family = familyNumber;
         clan = 0;
         age = 0;
+        birth = 0;
         id = i;
         skills = rand.nextInt(2,11);
         altruism = rand.nextDouble(0.5, 1.0);
-        charity = rand.nextDouble(1.0);
+        charity = 0.5;//rand.nextDouble(1.0);
         impatience = rand.nextDouble(0.5, 1.0);
         double applePreference = rand.nextDouble(1.0);
         preferences = new double[]{applePreference, rand.nextDouble(1.0 - applePreference)};
@@ -36,14 +38,15 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         children = new HashSet<>();
         //siblings = new HashSet<>();
     }
-    public Individual(Random rand, Integer familyNumber, Individual p, int good1, int good2, int i) {
+    public Individual(Random rand, Integer familyNumber, Individual p, int good1, int good2, int i, int period) {
         family = familyNumber;
         parent = p;
         clan = p.clan;
         age = 0;
+        birth = period;
         id = i;
         skills = 2; //rand.nextInt(Math.max(parent.skills - 2, 2), Math.min(parent.skills + 2, 6));
-        altruism = p.altruism; //Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
+        altruism = 0.8;//p.altruism; //Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
         charity = 0.5; //Math.max(Math.min(rand.nextGaussian(parent.charity, 0.05), 1), 0);
         impatience = p.impatience; //Math.max(Math.min(rand.nextGaussian(0.75, 0.05), 1), 0);
         double applePreference = 0.275;//rand.nextDouble(1.0);
@@ -182,7 +185,7 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
                 //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
                 //System.out.println("family size: " + economy.get(family).size());
                 //System.out.println("Before: " + economy.get(family).size());
-                Individual child = new Individual(economy.random, family,this, economy.childCost / 2, economy.childCost / 2, economy.get(family).size() + 1);
+                Individual child = new Individual(economy.random, family,this, economy.childCost / 2, economy.childCost / 2, economy.get(family).size() + 1, economy.currentPeriod());
                 addChild(child);
                 economy.add(family, child);
                 //System.out.println("After: " + economy.get(family).size());

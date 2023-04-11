@@ -76,12 +76,15 @@ def set_scale(scale_input, endow_input, char_input, skills_input):
     Z = gaussian_filter(griddata((x, y), z, (X.flatten(), Y.flatten()), 'nearest').reshape(50, 50), sigma=3)
     Z2 = gaussian_filter(griddata((x, y), z2, (X.flatten(), Y.flatten()), 'nearest').reshape(50, 50), sigma=3)
     goods = gaussian_filter(griddata((x, y), scale_df['total_goods'], (X.flatten(), Y.flatten()), 'nearest').reshape(50, 50), sigma=3)
-    layout = go.Layout(width=900,
-                       height=900)
+    layout = go.Layout(width=1200,
+                       height=1200)
     fig = make_subplots(rows=1, cols=2, specs=[[{'type': 'surface'}, {'type': 'surface'}]])
     fig.add_trace(go.Surface(x = X, y = Y, z = Z, surfacecolor=goods, colorbar=dict(title = "Future Goods")), row=1, col=1)
     fig.add_trace(go.Surface(x = X, y = Y, z = Z2, surfacecolor=goods, colorbar=dict(title = "Future Goods")), row=1, col=2)
-    fig.update_layout(scene = dict(xaxis_title="Altruism", yaxis_title="Impatience", zaxis_title="Children per Dollar", zaxis=dict(range=[0.0,1.0]), xaxis=dict(range=[0.5,1]), yaxis=dict(range=[0.5,1])))
+    fig.update_xaxes()
+    fig.update_layout(scene = dict(xaxis_title="Altruism", yaxis_title="Impatience", zaxis_title="Children per Dollar",
+    zaxis=dict(range=[0.0,1.0]), xaxis=dict(range=[0.5,1]), yaxis=dict(range=[0.5,1])),
+    scene2 = dict(xaxis_title="Altruism", yaxis_title="Impatience", zaxis_title="MPC"), height=800,width=1200)
     return fig
 
 if __name__ == "__main__":

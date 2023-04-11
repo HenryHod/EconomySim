@@ -83,7 +83,9 @@ public class Economy {
                 }
             }
         }
-        for (Integer family: ((ArrayList<Integer>) familyIndexes.clone())) {
+        while (familyIndexes.size() > 0) {
+            Integer family = familyIndexes.get(random.nextInt(familyIndexes.size()));
+            Clan clan = families.get(family).getRandom(random);
             for (Clan clan : families.get(family)) {
                 for (Individual familyMember: clan) {
                     int[] previousGoods = familyMember.goods.clone();
@@ -164,5 +166,8 @@ public class Economy {
                                 + periodCount + ", "
                                 + i.dataEntry() + ")"
                                 );
+    }
+    public int currentPeriod() {
+        return periodCount;
     }
 }

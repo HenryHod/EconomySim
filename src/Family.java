@@ -24,6 +24,9 @@ public class Family implements Iterable<Clan> {
     public Individual getOne(Random r) {
         return clans.get(clanIndexes.get(r.nextInt(clanIndexes.size()))).leastUtils();
     }
+    public Clan getRandom(Random r) {
+        return clans.get(clanIndexes.get(r.nextInt(clanIndexes.size())));
+    }
     public void add(Individual i) {
         //System.out.println("before: " + individuals.size());
         clans.get(i.clan).add(i);
