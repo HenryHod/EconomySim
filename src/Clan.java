@@ -1,16 +1,17 @@
 import java.util.*;
 
 
-public class Clan implements Iterable<Individual>{
-    private int id;
+public class Clan implements Iterable<Integer>{
+    private final int id;
     private int size;
     private int living;
-    private HashMap<Integer, Individual> individuals;
+    private final HashMap<Integer, Individual> individuals;
     private ArrayList<Integer> individualIndexes;
 
     @Override
-    public Iterator<Individual> iterator() {
-        return ((ArrayList<Integer>) individualIndexes.clone()).stream().map(index -> individuals.get(index)).iterator();
+    public Iterator<Integer> iterator() {
+        //individualIndexes.forEach(System.out::println);
+        return ((ArrayList<Integer>) individualIndexes.clone()).iterator();
     }
 
     public static class IndividualComparator implements Comparator<Individual> {
@@ -38,8 +39,9 @@ public class Clan implements Iterable<Individual>{
         //System.out.println("after: " + individuals.size());
         //System.out.println(i.id);
     }
-    public void remove(Individual i) {
+    public void remove(Individual i) throws IndexOutOfBoundsException {
         individuals.remove(i.id);
+        individualIndexes.remove((Integer) i.id);
         living -= 1;
     }
     public double totalUtility() {
@@ -68,5 +70,11 @@ public class Clan implements Iterable<Individual>{
     }
     public void removeIndex(Integer index) {
         individualIndexes.remove(index);
+    }
+    public int idNum() {
+        return id;
+    }
+    public boolean contains(Integer i) {
+        return individuals.containsKey(i);
     }
 }

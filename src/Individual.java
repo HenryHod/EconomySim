@@ -23,16 +23,15 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     public Individual(Random rand, Integer familyNumber, int good1, int good2, int i) {
         family = familyNumber;
         clan = 0;
-        birth = 0;
         age = 0;
         birth = 0;
         id = i;
-        skills = 2;//rand.nextInt(2,11);
-        altruism = 0.99;//rand.nextDouble(0.5, 1.0);
+        skills = rand.nextInt(2,11);
+        altruism = rand.nextDouble(0.5, 1.0);
         charity = 0.5;//rand.nextDouble(1.0);
-        impatience = 0.5;//rand.nextDouble(0.5, 1.0);
-        double applePreference = 0.05;//rand.nextDouble(1.0);
-        preferences = new double[]{applePreference, 0.05};//rand.nextDouble(1.0 - applePreference)};
+        impatience = 0.99;//rand.nextDouble(0.5, 1.0);
+        double applePreference = rand.nextDouble(1.0);
+        preferences = new double[]{applePreference, rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
@@ -43,12 +42,11 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         family = familyNumber;
         parent = p;
         clan = p.clan;
-        birth = p.birth + p.age;
         age = 0;
         birth = period;
         id = i;
-        skills = 2; //rand.nextInt(Math.max(parent.skills - 2, 2), Math.min(parent.skills + 2, 6));
-        altruism = 0.8;//p.altruism; //Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
+        skills = rand.nextInt(Math.max(parent.skills - 2, 2), Math.min(parent.skills + 2, 11));
+        altruism = p.altruism; //Math.max(Math.min(rand.nextGaussian(0.8, 0.05), 1), 0);
         charity = 0.5; //Math.max(Math.min(rand.nextGaussian(parent.charity, 0.05), 1), 0);
         impatience = p.impatience; //Math.max(Math.min(rand.nextGaussian(0.75, 0.05), 1), 0);
         double applePreference = 0.275;//rand.nextDouble(1.0);
@@ -118,8 +116,8 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         //System.out.println("future consumption: " + goodsFuture[0] + " " + goodsFuture[1]);
         //System.out.println("charity: " + charity * charityCase.utilityDiff(good1, good2));
         //System.out.println("Family: " + altruism * familyMember.utilityDiff(good1, good2));
-        //System.out.println(impatience * utilityFutDiff(good1, good2) + " " + utilitySkillsDiff(good1, good2));
-        if (impatience * utilityFutDiff(good1, good2) > utilitySkillsDiff(good1, good2)) {
+        System.out.println(impatience * utilityFutDiff(good1, good2) + " " + utilityDiff(good1, good2));
+        if (impatience * utilityFutDiff(good1, good2) > utilityDiff(good1, good2)) {
             //System.out.println("Production");
             decision = "Production";
             utility += impatience * utilityFutDiff(good1, good2);
@@ -206,7 +204,7 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         //System.out.println(apples + " " + oranges + " " + utilityChildDiff() + " " + utilityDiff(5, 5));
     }
     private double utilitySelf(int good1, int good2) {
-        return Math.pow(goodsSelf[0] + good1 + 1, preferences[0]) * Math.pow(goodsSelf[1] + good2 + 1, preferences[1]) - 1;
+        return Math.pow(goodsSelf[0] + good1 + 1, preferences[0]) + Math.pow(goodsSelf[1] + good2 + 1, preferences[1]) - 1;
     }
     private double utilitySelf() {
             return currentSelfUtility;
@@ -221,8 +219,8 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
                 good2 * preferences[1] * Math.pow(goodsSelf[0] + skills, preferences[0]) * Math.pow(goodsSelf[1] + skills, preferences[1] - 1);
     }
     private double utilityFutDiff(int good1, int good2) {
-        return good1 * preferences[0] * Math.pow(goodsFuture[0] + skills + 1 , preferences[0] - 1)  * Math.pow(goodsFuture[1] + skills + 1, preferences[1]) +
-                good2 * preferences[1] * Math.pow(goodsFuture[0] + skills + 1, preferences[0]) * Math.pow(goodsFuture[1] + skills + 1, preferences[1] - 1);
+        return good1 * preferences[0] * Math.pow(goodsFuture[0] + 1 , preferences[0] - 1)  * Math.pow(goodsFuture[1] + 1, preferences[1]) +
+                good2 * preferences[1] * Math.pow(goodsFuture[0] + 1, preferences[0]) * Math.pow(goodsFuture[1] + 1, preferences[1] - 1);
     }
     private double ln(int x) {
         return Math.log(x + 1);

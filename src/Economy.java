@@ -19,8 +19,8 @@ public class Economy {
         periodCount = 0;
         statement = stmt;
         for (int i = 0; i < size; i++) {
-            int apples = (childCost / 2) * 20;//rand.nextInt(1, 21);
-            int oranges = (childCost / 2) * 20;//rand.nextInt(1, 21);
+            int apples = (childCost / 2) * rand.nextInt(1, 21);
+            int oranges = (childCost / 2) * rand.nextInt(1, 21);
             families.put(i, new Family(new Individual(rand, i, apples, oranges, 0)));
             familyIndexes.add(i);
             totalGoods[0] += apples;
@@ -71,31 +71,33 @@ public class Economy {
                 }
             }
         }
-         */
-        for (Integer family: ((ArrayList<Integer>) familyIndexes.clone())) {
-            for (Clan clan : families.get(family)) {
-                for (Individual familyMember: clan) {
-                    if (!familyMember.hasGoods() || familyMember.age >= 3) {
-                        System.out.println(family + " " + familyMember.clan + " " + familyMember.id + " Deleted");
-                        families.get(family).remove(familyMember);
-                        //System.out.println(family + " " + familyMember.clan + " Deleted");
-                        if (families.get(family).living() <= 0) {
-                            System.out.println( family + " Deleted");
-                            families.remove(family);
-                            familyIndexes.remove(family);
-                            removeIndex(family);
+        for (Integer familyID: ((ArrayList<Integer>) familyIndexes.clone())) {
+            Family family = families.get(familyID);
+            for (Integer clanID : family) {
+                if (family.contains(clanID)) {
+                    Clan clan = family.get(clanID);
+                    for (Integer id: clan) {
+                        if (clan.contains(id)) {
+                            Individual familyMember = clan.get(id);
+                            //System.out.println("Family " + familyID + " Clan " + clanID + " ID " + id);
+                            if (!familyMember.hasGoods() || familyMember.age >= 3) {
+                                //System.out.println(family + " " + familyMember.clan + " " + familyMember.id + " Deleted");
+                                family.remove(familyMember);
+                                //System.out.println(family + " " + familyMember.clan + " Deleted");
+                                if (family.living() <= 0) {
+                                    //System.out.println(family + " Deleted");
+                                    families.remove(familyID);
+                                    familyIndexes.remove(familyID);
+                                    removeIndex(familyID);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-int count = familyIndexes.size();
+         */
         while (familyIndexes.size() > 0) {
-            if (familyIndexes.size() < count) {
-                System.out.println(familyIndexes.size());
-                System.out.println(size());
-            }
-            count = familyIndexes.size();
             //System.out.println(familyIndexes.size());
             Family family = families.get(familyIndexes.get(random.nextInt(familyIndexes.size())));
             Clan clan = family.getOne(random);
@@ -114,6 +116,17 @@ int count = familyIndexes.size();
                 familyMember.addPeriod();
                 familyMember.setFutureGoods();
                 clan.removeIndex(familyMember.id);
+                if (!familyMember.hasGoods() || familyMember.age >= 3) {
+                    //System.out.println(family + " " + familyMember.clan + " " + familyMember.id + " Deleted");
+                    family.remove(familyMember);
+                    //System.out.println(family + " " + familyMember.clan + " Deleted");
+                    if (family.living() <= 0) {
+                        //System.out.println(family + " Deleted");
+                        families.remove(familyMember.family);
+                        familyIndexes.remove(familyMember.family);
+                        removeIndex(familyMember.family);
+                    }
+                }
                 if (!clan.hasGoods()) {
                     family.removeIndex(familyMember.clan);
                     if (!family.hasGoods()) {

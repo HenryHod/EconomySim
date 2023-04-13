@@ -5,7 +5,7 @@ import java.util.*;
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.sum;
 
-public class Family implements Iterable<Clan> {
+public class Family implements Iterable<Integer> {
     private int size;
     private int living;
     private HashMap<Integer, Clan> clans;
@@ -68,6 +68,7 @@ public class Family implements Iterable<Clan> {
     public int living() {
         return living;
     }
+    /*
     public int[] totalGoods() {
         int[] total = new int[2];
         for (Clan clan: this) {
@@ -77,12 +78,14 @@ public class Family implements Iterable<Clan> {
         }
         return total;
     }
+
+     */
     public Iterator<Clan> noCopyIterator() {
         return clans.keySet().stream().map(clans::get).iterator();
     }
     @Override
-    public Iterator<Clan> iterator() {
-        return ((ArrayList<Integer>) clanIndexes.clone()).stream().map(clans::get).iterator();
+    public Iterator<Integer> iterator() {
+        return ((ArrayList<Integer>) clanIndexes.clone()).iterator();
     }
     public Clan get(Integer clan) {
         return clans.get(clan);
@@ -98,5 +101,8 @@ public class Family implements Iterable<Clan> {
     }
     public void removeIndex(Integer index) {
         clanIndexes.remove(index);
+    }
+    public boolean contains(Integer i) {
+        return clans.containsKey(i);
     }
 }
