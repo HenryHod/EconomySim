@@ -2,10 +2,17 @@ import java.util.*;
 
 
 public class Clan implements Iterable<Individual>{
+    private int id;
     private int size;
     private int living;
-    private TreeSet<Individual> individuals;
-    private HashMap<Integer, Individual> individualIndex;
+    private HashMap<Integer, Individual> individuals;
+    private ArrayList<Integer> individualIndexes;
+
+    @Override
+    public Iterator<Individual> iterator() {
+        return ((ArrayList<Integer>) individualIndexes.clone()).stream().map(index -> individuals.get(index)).iterator();
+    }
+
     public static class IndividualComparator implements Comparator<Individual> {
 
         @Override
@@ -14,32 +21,29 @@ public class Clan implements Iterable<Individual>{
         }
     }
     public Clan(Individual founder) {
-        individuals = new TreeSet<>(new IndividualComparator());
-        individualIndex = new HashMap<>();
+        id = founder.clan;
+        individuals = new HashMap<>();
+        individualIndexes = new ArrayList<>();
         size = 1;
         living = 1;
-        individuals.add(founder);
-        individualIndex.put(founder.id, founder);
-    }
-    public Individual leastUtils() {
-        return individuals.first();
+        individuals.put(founder.id, founder);
+        individualIndexes.add(founder.id);
     }
     public void add(Individual i) {
         //System.out.println("before: " + individuals.size());
-        individuals.add(i);
-        individualIndex.put(i.id, i);
+        individuals.put(i.id, i);
+        individualIndexes.add(i.id);
         size++;
         living++;
         //System.out.println("after: " + individuals.size());
         //System.out.println(i.id);
     }
     public void remove(Individual i) {
-        individuals.remove(i);
-        individualIndex.remove(i.id);
+        individuals.remove(i.id);
         living -= 1;
     }
     public double totalUtility() {
-        return individuals.stream().mapToDouble(Individual::getCurrentUtility).sum();
+        return individualIndexes.stream().mapToDouble(index -> individuals.get(index).goodTotals()).sum();
     }
     public int size() {
         return size;
@@ -48,20 +52,21 @@ public class Clan implements Iterable<Individual>{
         return living;
     }
     public int[] totalGoods() {
-        return new int[]{individuals.stream().mapToInt(ind -> ind.goods[0]).sum(), individuals.stream().mapToInt(ind -> ind.goods[0]).sum()};
-    }
-    public boolean contains(Individual i) {
-        return individuals.contains(i);
-    }
-    public Iterator<Individual> noCopyIterator() {
-        return individuals.iterator();
-    }
-    @Override
-    public Iterator<Individual> iterator() {
-        TreeSet<Individual> individualsCopy = (TreeSet<Individual>) individuals.clone();
-        return individualsCopy.descendingIterator();
+        return new int[]{individualIndexes.stream().mapToInt(ind -> individuals.get(ind).goods[0]).sum(), individualIndexes.stream().mapToInt(ind -> individuals.get(ind).goods[0]).sum()};
     }
     public Individual get(Integer n) {
-        return individualIndex.get(n);
+        return individuals.get(n);
+    }
+    public Individual getOne(Random r) {
+        return individuals.get(individualIndexes.get(r.nextInt(individualIndexes.size())));
+    }
+    public boolean hasGoods() {
+        return individualIndexes.stream().anyMatch(index -> individuals.get(index).hasGoods());
+    }
+    public void resetIndexes() {
+        individualIndexes = new ArrayList<>(individuals.keySet());
+    }
+    public void removeIndex(Integer index) {
+        individualIndexes.remove(index);
     }
 }

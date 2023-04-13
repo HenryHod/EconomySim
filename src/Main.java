@@ -15,7 +15,7 @@ public class Main {
             statement = conn.createStatement();
             // Do something with the Connection
             statement.executeUpdate("""
-                    DROP TABLE simulations
+                    DROP TABLE IF EXISTS simulations
                     """);
             statement.executeUpdate("""
                     CREATE TABLE simulations (
@@ -48,9 +48,9 @@ public class Main {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-        for (int a = 0; a < 1; a++) {
-            Economy economy = new Economy(100000, random, statement);
-            for (int i = 0; i < 1; i++) {
+        for (int a = 0; a < 100; a++) {
+            Economy economy = new Economy(2, random, statement);
+            for (int i = 0; i < 5; i++) {
                 economy.period();
                 economy.print();
             }

@@ -27,12 +27,12 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         age = 0;
         birth = 0;
         id = i;
-        skills = rand.nextInt(2,11);
-        altruism = rand.nextDouble(0.5, 1.0);
+        skills = 2;//rand.nextInt(2,11);
+        altruism = 0.99;//rand.nextDouble(0.5, 1.0);
         charity = 0.5;//rand.nextDouble(1.0);
-        impatience = rand.nextDouble(0.5, 1.0);
-        double applePreference = rand.nextDouble(1.0);
-        preferences = new double[]{applePreference, rand.nextDouble(1.0 - applePreference)};
+        impatience = 0.5;//rand.nextDouble(0.5, 1.0);
+        double applePreference = 0.05;//rand.nextDouble(1.0);
+        preferences = new double[]{applePreference, 0.05};//rand.nextDouble(1.0 - applePreference)};
         goods = new int[]{good1, good2};
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
@@ -162,54 +162,48 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     public void individualTurn(Economy economy) {
         goodsSelf = new int[]{0, 0};
         goodsFuture = new int[]{0, 0};
-        int apples = goods[0];
-        int oranges = goods[1];
         Individual familyMember = null;
         Individual charityCase = null;
+        Individual tradingPartner = null;
         currentSelfUtility = 0;
         currentUtility = 0;
         if (economy.get(family).get(clan).living() > 1) {
-            familyMember = economy.get(family).leastUtils(this);
+            familyMember = economy.get(family).getOne(economy.random).getOne(economy.random);
         }
         if (economy.size() > 1) {
             charityCase = economy.getOne(this);
         }
         //System.out.println(goodsSelf[0] + " " + goodsSelf[1]);
-        while (apples > 0 | oranges > 0) {
-            //System.out.println((1 + (skills / impatience )) * goodsSelf[0] + " > or < " + ((skills / impatience) * (goods[0]) + goodsFuture[0]));
-            //System.out.println((skills + 1) * goodsSelf[1] + " > or < " + (skills * (goods[1]) + goodsFuture[1]));
-            //System.out.println(goods[0] + " " + goods[1]);
-            //System.out.println("child utility: " + altruism * basicUtility(10, 10) + "self utility: " + utilityDiff(10, 10));
-            if ((oranges >= economy.childCost / 2 && apples >= economy.childCost / 2) && (altruism * basicUtility(economy.childCost / 2, economy.childCost / 2) > utilityDiff(economy.childCost / 2, economy.childCost / 2))) {
-                //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
-                //System.out.println("family size: " + economy.get(family).size());
-                //System.out.println("Before: " + economy.get(family).size());
-                Individual child = new Individual(economy.random, family,this, economy.childCost / 2, economy.childCost / 2, economy.get(family).size() + 1, economy.currentPeriod());
-                addChild(child);
-                economy.add(family, child);
-                //System.out.println("After: " + economy.get(family).size());
-                apples -= economy.childCost / 2;
-                oranges -= economy.childCost / 2;
-                currentUtility += altruism * child.potentialUtility();
+        //System.out.println((1 + (skills / impatience )) * goodsSelf[0] + " > or < " + ((skills / impatience) * (goods[0]) + goodsFuture[0]));
+        //System.out.println((skills + 1) * goodsSelf[1] + " > or < " + (skills * (goods[1]) + goodsFuture[1]));
+        //System.out.println(goods[0] + " " + goods[1]);
+        //System.out.println("child utility: " + altruism * basicUtility(10, 10) + "self utility: " + utilityDiff(10, 10));
+        if ((goods[0] >= economy.childCost / 2 && goods[1] >= economy.childCost / 2) && (altruism * basicUtility(economy.childCost / 2, economy.childCost / 2) > utilityDiff(economy.childCost / 2, economy.childCost / 2))) {
+            //System.out.println("child utility: " + utilityChildDiff() + "self for same goods " + utilityDiff(5, 5));
+            //System.out.println("family size: " + economy.get(family).size());
+            //System.out.println("Before: " + economy.get(family).size());
+            Individual child = new Individual(economy.random, family,this, economy.childCost / 2, economy.childCost / 2, economy.get(family).size() + 1, economy.currentPeriod());
+            addChild(child);
+            economy.add(family, child);
+            //System.out.println("After: " + economy.get(family).size());
+            goods[0] -= economy.childCost / 2;
+            goods[1] -= economy.childCost / 2;
+            currentUtility += altruism * child.potentialUtility();
 
-            } else {
-                if (apples > 0 & oranges > 0) {
-                    bestDecision(economy, 1, 1, familyMember, charityCase);
-                    apples -= 1;
-                    oranges -= 1;
-                } else if (apples > 0 && oranges == 0) {
-                    bestDecision(economy, 1, 0, familyMember, charityCase);
-                    apples -= 1;
-                } else if (apples == 0) {
-                    bestDecision(economy, 0, 1, familyMember, charityCase);
-                    oranges -= 1;
-                }
+        } else {
+            if (goods[0] > 0 & goods[1] > 0) {
+                bestDecision(economy, 1, 1, familyMember, charityCase);
+                goods[0] -= 1;
+                goods[1] -= 1;
+            } else if (goods[0] > 0 && goods[1] == 0) {
+                bestDecision(economy, 1, 0, familyMember, charityCase);
+                goods[0] -= 1;
+            } else if (goods[0] == 0) {
+                bestDecision(economy, 0, 1, familyMember, charityCase);
+                goods[1] -= 1;
             }
-            //System.out.println(apples + " " + oranges + " " + utilityChildDiff() + " " + utilityDiff(5, 5));
-
         }
-
-        goods = goodsFuture;
+        //System.out.println(apples + " " + oranges + " " + utilityChildDiff() + " " + utilityDiff(5, 5));
     }
     private double utilitySelf(int good1, int good2) {
         return Math.pow(goodsSelf[0] + good1 + 1, preferences[0]) * Math.pow(goodsSelf[1] + good2 + 1, preferences[1]) - 1;
@@ -315,8 +309,10 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     public boolean hasParent() {
         return parent != null;
     }
-
-
+    public boolean hasGoods() { return goods[0] + goods[1] > 0;}
+    public void setFutureGoods() {
+        goods = goodsFuture;
+    }
     @Override
     public Iterator<Integer> iterator() {
         return children.iterator();

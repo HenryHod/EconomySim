@@ -10,7 +10,6 @@ public class Family implements Iterable<Clan> {
     private int living;
     private HashMap<Integer, Clan> clans;
     private ArrayList<Integer> clanIndexes;
-    private 
     public Family(Individual founder) {
         clans = new HashMap<>();
         clanIndexes = new ArrayList<>();
@@ -19,13 +18,7 @@ public class Family implements Iterable<Clan> {
         clans.put(0, new Clan(founder));
         clanIndexes.add(founder.clan);
     }
-    public Individual leastUtils(Individual i) {
-        return clans.get(i.clan).leastUtils();
-    }
-    public Individual getOne(Random r) {
-        return clans.get(clanIndexes.get(r.nextInt(clanIndexes.size()))).leastUtils();
-    }
-    public Clan getRandom(Random r) {
+    public Clan getOne(Random r) {
         return clans.get(clanIndexes.get(r.nextInt(clanIndexes.size())));
     }
     public void add(Individual i) {
@@ -63,7 +56,7 @@ public class Family implements Iterable<Clan> {
         if (currentClan.living() == 0) {
             //System.out.println("Remove Clan: " + i.clan + " From Family: " + i.family + " Last Individual: " + i.id);
             clans.remove(i.clan);
-            clanIndexes.remove(i.clan);
+            removeIndex(i.clan);
         }
     }
     public double totalUtility() {
@@ -93,5 +86,17 @@ public class Family implements Iterable<Clan> {
     }
     public Clan get(Integer clan) {
         return clans.get(clan);
+    }
+    public boolean hasGoods() {
+        return clanIndexes.stream().anyMatch(index -> clans.get(index).hasGoods());
+    }
+    public void resetIndexes() {
+        clanIndexes = new ArrayList<>(clans.keySet());
+        for (Integer clanIndex : clanIndexes) {
+            clans.get(clanIndex).resetIndexes();
+        }
+    }
+    public void removeIndex(Integer index) {
+        clanIndexes.remove(index);
     }
 }
