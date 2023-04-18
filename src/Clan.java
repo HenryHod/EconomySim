@@ -33,7 +33,6 @@ public class Clan implements Iterable<Integer>{
     public void add(Individual i) {
         //System.out.println("before: " + individuals.size());
         individuals.put(i.id, i);
-        individualIndexes.add(i.id);
         size++;
         living++;
         //System.out.println("after: " + individuals.size());
@@ -53,8 +52,8 @@ public class Clan implements Iterable<Integer>{
     public int living() {
         return living;
     }
-    public int[] totalGoods() {
-        return new int[]{individualIndexes.stream().mapToInt(ind -> individuals.get(ind).goods[0]).sum(), individualIndexes.stream().mapToInt(ind -> individuals.get(ind).goods[0]).sum()};
+    public int totalGoods() {
+        return individualIndexes.stream().mapToInt(ind -> individuals.get(ind).goods).sum();
     }
     public Individual get(Integer n) {
         return individuals.get(n);
@@ -69,7 +68,7 @@ public class Clan implements Iterable<Integer>{
         individualIndexes = new ArrayList<>(individuals.keySet());
     }
     public void removeIndex(Integer index) {
-        individualIndexes.remove(index);
+        individualIndexes.remove(individualIndexes.indexOf(index));
     }
     public int idNum() {
         return id;

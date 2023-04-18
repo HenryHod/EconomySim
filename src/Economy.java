@@ -4,7 +4,7 @@ import java.sql.Statement;
 import java.util.*;
 
 public class Economy {
-    private int[] totalGoods;
+    private int totalGoods;
     private Statement statement;
     private int periodCount;
     public Random random;
@@ -15,16 +15,14 @@ public class Economy {
         random = rand;
         families = new HashMap<>();
         familyIndexes = new ArrayList<>();
-        totalGoods = new int[]{0, 0};
+        totalGoods = 0;
         periodCount = 0;
         statement = stmt;
         for (int i = 0; i < size; i++) {
-            int apples = (childCost / 2) * rand.nextInt(1, 21);
-            int oranges = (childCost / 2) * rand.nextInt(1, 21);
-            families.put(i, new Family(new Individual(rand, i, apples, oranges, 0)));
+            int goods = childCost * rand.nextInt(1, 11);
+            families.put(i, new Family(new Individual(rand, i, goods, 0)));
             familyIndexes.add(i);
-            totalGoods[0] += apples;
-            totalGoods[1] += oranges;
+            totalGoods += goods;
         }
     }
     public Individual getOne(Individual self) {
@@ -35,29 +33,24 @@ public class Economy {
         return families.get(nextFamily).getOne(random).getOne(random);
     }
     public void period() throws SQLException {
-        totalGoods = new int[]{0, 0};
+        totalGoods = 0;
         periodCount++;
         resetIndexes();
         StringBuilder dataString = new StringBuilder("""
                 INSERT INTO simulations (period,
-                                        good1,
-                                        good2,
-                                        new_children,
+                                        goods,
+                                        prev_children,
                                         clan,
                                         family,
                                         generation,
                                         age,
                                         children,
                                         altruism,
-                                        impatience,
+                                        patience,
                                         charity,
-                                        skills,
-                                        future_good1,
-                                        future_good2,
-                                        self_good1,
-                                        self_good2,
-                                        good1_pref,
-                                        good2_pref,
+                                        future_goods,
+                                        self_goods,
+                                        pref,
                                         utility)
                 VALUES""");
         /*
@@ -97,24 +90,33 @@ public class Economy {
             }
         }
          */
+        int percent = 0;
         while (familyIndexes.size() > 0) {
             //System.out.println(familyIndexes.size());
+            int currentPercent = 100 - (int) (((double) familyIndexes.size() / families.size()) * 100);
+            if (currentPercent % 10 == 0 && currentPercent != percent) {
+                percent = 100 - (int) (((double) familyIndexes.size() / families.size()) * 100);
+                System.out.println("Period " + periodCount + " " + percent + "% Completed");
+            }
             Family family = families.get(familyIndexes.get(random.nextInt(familyIndexes.size())));
             Clan clan = family.getOne(random);
             Individual familyMember = clan.getOne(random);
-            int[] previousGoods = familyMember.goods.clone();
-            int previousChildren = familyMember.children.size();
+            if (familyMember.dataString.length() == 0) {
+                familyMember.dataString.append("(").append(periodCount).append(", ")
+                        .append(familyMember.goods).append(", ")
+                        .append(familyMember.children.size()).append(", ");
+            }
             familyMember.individualTurn(this);
+            totalGoods += 1;
             //System.out.println("Previous Goods: " + previousGoods[0] + " " + previousGoods[1] + " Current Goods: " + familyMember.goods[0] + " " + familyMember.goods[1]);
             if (!familyMember.hasGoods()) {
-                dataString.append("(").append(periodCount).append(", ")
-                        .append(previousGoods[0]).append(", ")
-                        .append(previousGoods[1]).append(", ")
-                        .append(familyMember.children.size() - previousChildren).append(", ")
-                        .append(familyMember.dataEntry()).append("), ");
                 //System.out.println((end - start)/1000.0);
                 familyMember.addPeriod();
-                familyMember.setFutureGoods();
+                familyMember.dataString.append(familyMember.dataEntry()).append("), ");
+                dataString.append(familyMember.dataString);
+                familyMember.resetData();
+                familyMember.resetGoods();
+                familyMember.resetUtility();
                 clan.removeIndex(familyMember.id);
                 if (!familyMember.hasGoods() || familyMember.age >= 3) {
                     //System.out.println(family + " " + familyMember.clan + " " + familyMember.id + " Deleted");
@@ -132,30 +134,25 @@ public class Economy {
                     if (!family.hasGoods()) {
                         removeIndex(familyMember.family);
                     }
-                };
+                }
             }
             if (dataString.length() > 100000) {
                 statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
                 dataString = new StringBuilder("""
                         INSERT INTO simulations (period,
-                                                good1,
-                                                good2,
-                                                new_children,
+                                                goods,
+                                                prev_children,
                                                 clan,
                                                 family,
                                                 generation,
                                                 age,
                                                 children,
                                                 altruism,
-                                                impatience,
+                                                patience,
                                                 charity,
-                                                skills,
-                                                future_good1,
-                                                future_good2,
-                                                self_good1,
-                                                self_good2,
-                                                good1_pref,
-                                                good2_pref,
+                                                future_goods,
+                                                self_goods,
+                                                pref,
                                                 utility)
                         VALUES""");
 
@@ -179,7 +176,7 @@ public class Economy {
     public void print() {
         System.out.println("Period: " + periodCount);
         System.out.println(families.keySet().stream().mapToInt(key -> families.get(key).living()).sum());
-        System.out.println(totalGoods[0] + " " + totalGoods[1]);
+        System.out.println(totalGoods);
         System.out.println(families.keySet().stream().mapToDouble(key -> families.get(key).totalUtility()).sum());
     }
     private void recordData(Individual i) throws SQLException {

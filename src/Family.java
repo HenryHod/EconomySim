@@ -32,19 +32,23 @@ public class Family implements Iterable<Integer> {
     public void remove(Individual i) {
         Clan currentClan = clans.get(i.clan);
         for (Integer childIndex: i) {
-            Individual child = currentClan.get(childIndex);
-            currentClan.remove(child);
-            child.clan = size;
-            clans.put(child.clan, new Clan(child));
-            clanIndexes.add(child.clan);
-            i.inheritance(child);
-            child.resetParent();
-            size++;
-            for (Integer grandchildIndex: child) {
-                Individual grandchild = currentClan.get(grandchildIndex);
-                currentClan.remove(grandchild);
-                grandchild.clan = child.clan;
-                clans.get(child.clan).add(grandchild);
+            if (currentClan.contains(childIndex)) {
+                Individual child = currentClan.get(childIndex);
+                currentClan.remove(child);
+                child.clan = size;
+                clans.put(child.clan, new Clan(child));
+                clanIndexes.add(child.clan);
+                i.inheritance(child);
+                child.resetParent();
+                size++;
+                for (Integer grandchildIndex : child) {
+                    if (currentClan.contains(grandchildIndex)) {
+                        Individual grandchild = currentClan.get(grandchildIndex);
+                        currentClan.remove(grandchild);
+                        grandchild.clan = child.clan;
+                        clans.get(child.clan).add(grandchild);
+                    }
+                }
             }
         }
         if (i.hasParent()) {

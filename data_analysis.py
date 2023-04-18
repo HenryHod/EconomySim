@@ -25,9 +25,9 @@ df["log family size"] = np.log(df["family size"]).fillna(0)
 df["log utility"] = np.log(df["utility"]).fillna(0)
 #df["altruism * returns to scale"] = df["altruism"] * df["returns to scale"]
 #df["altruism * log total goods"] = df["altruism"] * df["log total goods"]
-#df["altruism * impatience"] = df["altruism"] * df["impatience"]
+#df["altruism * patience"] = df["altruism"] * df["patience"]
 #df = pd.get_dummies(df,columns=["age", "generation"])
-bad_columns = ["children", "log children", "good1","good2", "future_good1", "future_good2", "good1_pref", "good2_pref", "period", "family", "impatience", "charity", "returns to scale", "utility", "log utility", "skills", "id", "new_children"]
+bad_columns = ["children", "log children", "good1","good2", "future_good1", "future_good2", "good1_pref", "good2_pref", "period", "family", "patience", "charity", "returns to scale", "utility", "log utility", "skills", "id", "new_children"]
 for column1 in df.columns[:21]:
     for column2 in df.columns[:21]:
         if (column1 not in bad_columns and column2 not in bad_columns) and (f"{column2} * {column1}" not in df.columns):
@@ -44,7 +44,7 @@ df.dropna(inplace=True)
 """
 age0_df = df.query("period == 1").query("generation == 0")
 x = age0_df["altruism"]
-y = age0_df["impatience"]
+y = age0_df["patience"]
 z = age0_df["new_children"]
 xi = np.linspace(min(x), max(x))
 yi = np.linspace(min(y), max(y))
@@ -52,13 +52,13 @@ X, Y = np.meshgrid(xi, yi)
 Z = griddata((x, y), z, (X.flatten(), Y.flatten()), 'linear').reshape(50, 50)
 print(type(Z))
 fig = go.Figure(go.Surface(x = X, y = Y, z = Z))
-#plt.scatter(age0_df["altruism"], jitter(age0_df["new_children"], 0), c=age0_df["impatience"])
+#plt.scatter(age0_df["altruism"], jitter(age0_df["new_children"], 0), c=age0_df["patience"])
 #g.map(sns.scatterplot, "altruism","log children")
 #ax.colorbar()
 #plt.xlim(0.7, 1)
 #plt.colorbar()
 #ax.set_xlabel('altruism')
-#ax.set_ylabel('impatience')
+#ax.set_ylabel('patience')
 #ax.set_zlabel('new_children')
 #ax.set_ylim(0.5, 1)
 #plt.show()
