@@ -7,20 +7,27 @@ public class Economy {
     private int totalGoods;
     private Statement statement;
     private int periodCount;
+    private final double meanAltruism;
+    private final double meanPatience;
+    private final double std;
+
     public Random random;
     private HashMap<Integer, Family> families;
     private ArrayList<Integer> familyIndexes;
     public final int childCost  = 20;
-    public Economy(int size, Random rand, Statement stmt) {
+    public Economy(int size, Random rand, Statement stmt,double altruism, double patience, double sd) {
         random = rand;
         families = new HashMap<>();
         familyIndexes = new ArrayList<>();
         totalGoods = 0;
         periodCount = 0;
+        meanAltruism = altruism;
+        meanPatience = patience;
+        std = sd;
         statement = stmt;
         for (int i = 0; i < size; i++) {
             int goods = childCost * rand.nextInt(1, 11);
-            families.put(i, new Family(new Individual(rand, i, goods, 0)));
+            families.put(i, new Family(new Individual(rand, i, goods, 0, altruism, patience, sd)));
             familyIndexes.add(i);
             totalGoods += goods;
         }
@@ -38,6 +45,9 @@ public class Economy {
         resetIndexes();
         StringBuilder dataString = new StringBuilder("""
                 INSERT INTO simulations (period,
+                                        mean_altruism,
+                                        mean_patience,
+                                        std,
                                         goods,
                                         prev_children,
                                         clan,
@@ -53,58 +63,28 @@ public class Economy {
                                         pref,
                                         utility)
                 VALUES""");
-        /*
-        for (Integer family: new HashSet<>(families.keySet())) {
-            for (Individual familyMember : families.get(family)) {
-                if (((familyMember.goods[0] + familyMember.goods[1]) == 0) || (familyMember.age >= 6)) {
-                    families.get(family).remove(familyMember);
-                    if (families.get(family).size() <= 0) {
-                        families.remove(family);
-                    }
-                }
-            }
-        }
-        for (Integer familyID: ((ArrayList<Integer>) familyIndexes.clone())) {
-            Family family = families.get(familyID);
-            for (Integer clanID : family) {
-                if (family.contains(clanID)) {
-                    Clan clan = family.get(clanID);
-                    for (Integer id: clan) {
-                        if (clan.contains(id)) {
-                            Individual familyMember = clan.get(id);
-                            //System.out.println("Family " + familyID + " Clan " + clanID + " ID " + id);
-                            if (!familyMember.hasGoods() || familyMember.age >= 3) {
-                                //System.out.println(family + " " + familyMember.clan + " " + familyMember.id + " Deleted");
-                                family.remove(familyMember);
-                                //System.out.println(family + " " + familyMember.clan + " Deleted");
-                                if (family.living() <= 0) {
-                                    //System.out.println(family + " Deleted");
-                                    families.remove(familyID);
-                                    familyIndexes.remove(familyID);
-                                    removeIndex(familyID);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-         */
-        int percent = 0;
+
+        //int percent = 0;
         while (familyIndexes.size() > 0) {
             //System.out.println(familyIndexes.size());
+            /*
             int currentPercent = 100 - (int) (((double) familyIndexes.size() / families.size()) * 100);
-            if (currentPercent % 10 == 0 && currentPercent != percent) {
+            if (currentPercent % 100 == 0 && currentPercent != percent) {
                 percent = 100 - (int) (((double) familyIndexes.size() / families.size()) * 100);
                 System.out.println("Period " + periodCount + " " + percent + "% Completed");
             }
+             */
             Family family = families.get(familyIndexes.get(random.nextInt(familyIndexes.size())));
             Clan clan = family.getOne(random);
             Individual familyMember = clan.getOne(random);
-            if (familyMember.dataString.length() == 0) {
-                familyMember.dataString.append("(").append(periodCount).append(", ")
-                        .append(familyMember.goods).append(", ")
-                        .append(familyMember.children.size()).append(", ");
+            if (familyMember.startedPeriod()) {
+                familyMember.updateData("(" +
+                                periodCount + ", " +
+                                meanAltruism + ", " +
+                                meanPatience + ", " +
+                                std + ", " +
+                                familyMember.goods + ", " +
+                                familyMember.children.size() + ", ");
             }
             familyMember.individualTurn(this);
             totalGoods += 1;
@@ -112,8 +92,8 @@ public class Economy {
             if (!familyMember.hasGoods()) {
                 //System.out.println((end - start)/1000.0);
                 familyMember.addPeriod();
-                familyMember.dataString.append(familyMember.dataEntry()).append("), ");
-                dataString.append(familyMember.dataString);
+                familyMember.updateData(familyMember.dataEntry() + "), ");
+                dataString.append(familyMember.getDataString());
                 familyMember.resetData();
                 familyMember.resetGoods();
                 familyMember.resetUtility();
@@ -140,6 +120,9 @@ public class Economy {
                 statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
                 dataString = new StringBuilder("""
                         INSERT INTO simulations (period,
+                                                mean_altruism,
+                                                mean_patience,
+                                                std,
                                                 goods,
                                                 prev_children,
                                                 clan,

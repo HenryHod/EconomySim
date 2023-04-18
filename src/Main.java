@@ -24,6 +24,9 @@ public class Main {
                     clan INTEGER NOT NULL,
                     family INTEGER NOT NULL,
                     generation INTEGER NOT NULL,
+                    mean_altruism DOUBLE NOT NULL,
+                    mean_patience DOUBLE NOT NULL,
+                    std DOUBLE NOT NULL,
                     age INTEGER NOT NULL,
                     children INTEGER NOT NULL,
                     prev_children INTEGER NOT NULL,
@@ -43,13 +46,26 @@ public class Main {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-        for (int a = 0; a < 10; a++) {
-            Economy economy = new Economy(100000, random, statement);
-            for (int i = 0; i < 1; i++) {
-                economy.period();
-                economy.print();
+        double sd = 0.1;
+        double altruism = 0.1;
+        double patience = 0.25;
+        int maxA = 10;
+        int maxB = 4;
+        int maxC = 3;
+        for (int a = 0; a < maxA + 1; a++) {
+            for (int b = 0; b < maxB + 1; b++) {
+                for (int c = 0; c < maxC + 1; c++) {
+                    Economy economy = new Economy(1000, random, statement, altruism * a, patience * b, sd * c);
+                    for (int i = 0; i < 1; i++) {
+                        economy.period();
+                        //economy.print();
+                        //System.out.println(altruism * a + " " + patience * b + " " + sd * c);
+                        //int percent = (c * maxA * maxB) + (b * maxA) + a;
+                    }
+                    conn.commit();
+                }
+                System.out.println(a + " " + b);
             }
-            conn.commit();
         }
     }
 }

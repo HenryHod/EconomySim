@@ -20,15 +20,15 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     HashSet<Integer> children;
     StringBuilder dataString;
 
-    public Individual(Random rand, Integer familyNumber, int g, int i) {
+    public Individual(Random rand, Integer familyNumber, int g, int i,double a, double p,  double sd) {
         family = familyNumber;
         clan = 0;
         age = 0;
         birth = 0;
         id = i;
-        altruism = rand.nextDouble(1.0);
+        altruism = Math.min(Math.max(rand.nextGaussian(a, sd), 0.0), 0.99);
         charity = 0;//rand.nextDouble(1.0);
-        patience = rand.nextDouble(1.0);
+        patience = Math.min(Math.max(rand.nextGaussian(p, sd), 0.0), 0.99);
         preference = rand.nextDouble(1.0);
         goods = g;
         goodsSelf = 0;
@@ -279,6 +279,15 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     public void resetUtility() {
         currentUtility = 0;
         currentSelfUtility = 0;
+    }
+    public boolean startedPeriod() {
+        return dataString.length() == 0;
+    }
+    public void updateData(String str) {
+        dataString.append(str);
+    }
+    public StringBuilder getDataString() {
+        return dataString;
     }
     @Override
     public Iterator<Integer> iterator() {
