@@ -52,8 +52,8 @@ public class Clan implements Iterable<Integer>{
     public int living() {
         return living;
     }
-    public int totalGoods() {
-        return individualIndexes.stream().mapToInt(ind -> individuals.get(ind).goods).sum();
+    public double totalGoods() {
+        return individualIndexes.stream().mapToDouble(ind -> individuals.get(ind).goods).sum();
     }
     public Individual get(Integer n) {
         return individuals.get(n);

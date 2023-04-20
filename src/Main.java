@@ -46,17 +46,17 @@ public class Main {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-        double sd = 0.1;
-        double altruism = 0.1;
-        double patience = 0.25;
         int maxA = 10;
-        int maxB = 4;
-        int maxC = 3;
+        int maxB = 10;
+        int maxC = 10;
+        double sd = 0.05;
+        double altruism = (double) 1 / maxA;
+        double patience = (double) 1 / maxB;
         for (int a = 0; a < maxA + 1; a++) {
             for (int b = 0; b < maxB + 1; b++) {
                 for (int c = 0; c < maxC + 1; c++) {
-                    Economy economy = new Economy(1000, random, statement, altruism * a, patience * b, sd * c);
-                    for (int i = 0; i < 1; i++) {
+                    Economy economy = new Economy(1000, random, statement, altruism * a, patience * b, sd, 5);
+                    for (int i = 0; i < 30; i++) {
                         economy.period();
                         //economy.print();
                         //System.out.println(altruism * a + " " + patience * b + " " + sd * c);

@@ -10,12 +10,13 @@ public class Economy {
     private final double meanAltruism;
     private final double meanPatience;
     private final double std;
-
+    public final int maxAge;
+    public double r;
     public Random random;
     private HashMap<Integer, Family> families;
     private ArrayList<Integer> familyIndexes;
     public final int childCost  = 20;
-    public Economy(int size, Random rand, Statement stmt,double altruism, double patience, double sd) {
+    public Economy(int size, Random rand, Statement stmt,double altruism, double patience, double sd, int age) {
         random = rand;
         families = new HashMap<>();
         familyIndexes = new ArrayList<>();
@@ -24,9 +25,10 @@ public class Economy {
         meanAltruism = altruism;
         meanPatience = patience;
         std = sd;
+        maxAge = age;
         statement = stmt;
         for (int i = 0; i < size; i++) {
-            int goods = childCost * rand.nextInt(1, 11);
+            double goods = (double) childCost * rand.nextInt(1, 11);
             families.put(i, new Family(new Individual(rand, i, goods, 0, altruism, patience, sd)));
             familyIndexes.add(i);
             totalGoods += goods;
@@ -43,6 +45,7 @@ public class Economy {
         totalGoods = 0;
         periodCount++;
         resetIndexes();
+        r = random.nextDouble(0.5);
         StringBuilder dataString = new StringBuilder("""
                 INSERT INTO simulations (period,
                                         mean_altruism,
@@ -98,7 +101,7 @@ public class Economy {
                 familyMember.resetGoods();
                 familyMember.resetUtility();
                 clan.removeIndex(familyMember.id);
-                if (!familyMember.hasGoods() || familyMember.age >= 3) {
+                if (!familyMember.hasGoods() || familyMember.age >= maxAge) {
                     //System.out.println(family + " " + familyMember.clan + " " + familyMember.id + " Deleted");
                     family.remove(familyMember);
                     //System.out.println(family + " " + familyMember.clan + " Deleted");
@@ -144,7 +147,7 @@ public class Economy {
 
         }
         //System.out.println(dataString.substring(0, dataString.length() - 2));
-        if (families.size() > 0) {
+        if (families.size() > 0 && dataString.length() > 615) {
             statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
         }
     }
