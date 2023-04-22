@@ -151,13 +151,13 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
             charityCase.currentUtility += utility;
         }
     }
-    public void individualTurn(Economy economy) {
+    public void individualTurn(Economy economy, Family f, Clan c) {
         Individual familyMember = null;
         Individual charityCase = null;
         currentSelfUtility = 0;
         currentUtility = 0;
-        if (economy.get(family).get(clan).living() > 1) {
-            familyMember = economy.get(family).getOne(economy.random).getOne(economy.random);
+        if (c.living() > 1) {
+            familyMember = f.getOne(economy.random).getOne(economy.random);
         }
         if (economy.size() > 1) {
             charityCase = economy.getOne(this);
@@ -172,12 +172,11 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
                 //System.out.println("child utility: " + altruism * basicUtility(economy.childCost) + "self for same goods " + utilityDiff(economy.childCost));
                 //System.out.println("family size: " + economy.get(family).size());
                 //System.out.println("Before: " + economy.get(family).size());
-                Individual child = new Individual(economy.random, family, this, economy.childCost, economy.get(family).size() + 1, economy.currentPeriod());
+                Individual child = new Individual(economy.random, family, this, economy.childCost, f.size() + 1, economy.currentPeriod());
                 addChild(child);
                 economy.add(family, child);
                 //System.out.println("After: " + economy.get(family).size());
                 goods -= economy.childCost;
-                currentUtility += altruism * child.potentialUtility();
             }
 
         } else if (goods >= 1 ) {
@@ -195,7 +194,7 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     }
     private double utilityDiff(double g) {
         //System.out.println(utilitySelf(good1, good2) + " " + utilitySelf());
-        return Math.pow(goodsSelf + g, 1 - preference) / (1 - preference) - Math.pow(goodsSelf, 1 - preference) / (1 - preference);
+        return Math.pow(goodsSelf + g, 1 - preference) / (1 - preference) - currentSelfUtility;
     }
     private double utilityFutDiff(double g) {
         return Math.pow(goodsFuture + g, 1 - preference) / (1 - preference) - Math.pow(goodsFuture, 1 - preference) / (1 - preference);

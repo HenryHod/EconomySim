@@ -98,7 +98,7 @@ public class Economy {
                                 familyMember.goods + ", " +
                                 familyMember.children.size() + ", ");
             }
-            familyMember.individualTurn(this);
+            familyMember.individualTurn(this, family, clan);
             totalGoods += 1;
             //System.out.println("Previous Goods: " + previousGoods[0] + " " + previousGoods[1] + " Current Goods: " + familyMember.goods[0] + " " + familyMember.goods[1]);
             if (!familyMember.hasGoods()) {
