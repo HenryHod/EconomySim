@@ -49,19 +49,25 @@ public class Main {
         int maxA = 10;
         int maxB = 10;
         int maxC = 10;
+        int maxD = 5;
         double sd = 0.05;
         double altruism = (double) 1 / maxA;
         double patience = (double) 1 / maxB;
         for (int a = 0; a < maxA + 1; a++) {
             for (int b = 0; b < maxB + 1; b++) {
                 for (int c = 0; c < maxC + 1; c++) {
-                    Economy economy = new Economy(1000, random, statement, altruism * a, patience * b, sd, 5);
-                    for (int i = 0; i < 30; i++) {
-                        economy.period();
-                        //economy.print();
-                        //System.out.println(altruism * a + " " + patience * b + " " + sd * c);
-                        //int percent = (c * maxA * maxB) + (b * maxA) + a;
+                    for (int d = 0; d < maxD + 1; d++) {
+                        Economy economy = new Economy(1, random, statement, altruism, patience, charity * c, sd, 5, d);
+                        for (int i = 0; i < 25; i++) {
+                            //System.out.println(i);
+                            economy.period();
+                            //economy.print();
+                            //System.out.println(altruism * a + " " + patience * b + " " + sd * c);
+                            //int percent = (c * maxA * maxB) + (b * maxA) + a;
+                        }
                     }
+                    System.out.println(a + " " + b + " " + c);
+
                     conn.commit();
                 }
                 System.out.println(a + " " + b);
