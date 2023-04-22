@@ -177,6 +177,9 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
                 economy.add(family, child);
                 //System.out.println("After: " + economy.get(family).size());
                 goods -= economy.childCost;
+            } else {
+                bestDecision(economy, 1.0, familyMember, charityCase);
+                goods -=1;
             }
 
         } else if (goods >= 1 ) {
