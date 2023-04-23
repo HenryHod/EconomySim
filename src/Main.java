@@ -50,6 +50,7 @@ public class Main {
         int maxB = 10;
         int maxC = 10;
 <<<<<<< HEAD
+<<<<<<< HEAD
         int maxD = 10;
         double sd = 0.05;
         double altruism = 1;//(double) 1 / maxA;
@@ -75,12 +76,23 @@ public class Main {
         for (int a = 0; a < maxA + 1; a++) {
             for (int b = 0; b < maxB + 1; b++) {
                 for (int c = 0; c < maxC + 1; c++) {
+=======
+        double sd = 0.05;
+        double altruism = (double) 1 / maxA;
+        double patience = (double) 1 / maxB;
+        for (int a = 0; a < maxA + 1; a++) {
+            for (int b = 0; b < maxB + 1; b++) {
+                for (int c = 0; c < maxC + 1; c++) {
+>>>>>>> parent of 3cae6a7 (commit 23)
                     Economy economy = new Economy(1000, random, statement, altruism * a, patience * b, sd, 5);
                     for (int i = 0; i < 30; i++) {
                         economy.period();
                         //economy.print();
                         //System.out.println(altruism * a + " " + patience * b + " " + sd * c);
                         //int percent = (c * maxA * maxB) + (b * maxA) + a;
+<<<<<<< HEAD
+>>>>>>> parent of 3cae6a7 (commit 23)
+=======
 >>>>>>> parent of 3cae6a7 (commit 23)
                     }
                     conn.commit();
