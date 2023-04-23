@@ -11,7 +11,6 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     double goods;
     int goodsSelf;
     int goodsFuture;
-    int goodsCharity;
     double altruism;
     double charity;
     double patience;
@@ -21,14 +20,14 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     HashSet<Integer> children;
     StringBuilder dataString;
 
-    public Individual(Random rand, Integer familyNumber, double g, int i,double a, double p, double c,  double sd) {
+    public Individual(Random rand, Integer familyNumber, double g, int i,double a, double p,  double sd) {
         family = familyNumber;
         clan = 0;
         age = 0;
         birth = 0;
         id = i;
         altruism = Math.min(Math.max(rand.nextGaussian(a, sd), 0.0), 0.99);
-        charity = Math.min(Math.max(rand.nextGaussian(c, sd), 0.0), 0.99);
+        charity = rand.nextDouble(1.0);
         patience = Math.min(Math.max(rand.nextGaussian(p, sd), 0.0), 0.99);
         preference = rand.nextDouble(1.0);
         goods = g;
@@ -146,7 +145,6 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
             familyMember.currentUtility += utility;
         } else if (Objects.equals(decision, "Charity")) {
             currentUtility = charity * utility;
-            goodsCharity += good;
             charityCase.addGoods(good);
             charityCase.currentUtility += utility;
         }
@@ -252,7 +250,6 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
                 + ", " + charity
                 + ", " + goodsFuture
                 + ", " + goodsSelf
-                + ", " + goodsCharity
                 + ", " + preference
                 + ", " + currentUtility;
     }
@@ -283,7 +280,6 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         goods = goodsFuture;
         goodsFuture = 0;
         goodsSelf = 0;
-        goodsCharity = 0;
     }
     public void resetData() {
         dataString = new StringBuilder();

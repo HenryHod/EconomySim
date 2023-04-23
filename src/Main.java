@@ -20,14 +20,12 @@ public class Main {
             statement.executeUpdate("""
                     CREATE TABLE simulations (
                     id INTEGER PRIMARY KEY,
-                    sim_id INTEGER NOT NULL,
                     period INTEGER NOT NULL,
                     clan INTEGER NOT NULL,
                     family INTEGER NOT NULL,
                     generation INTEGER NOT NULL,
                     mean_altruism DOUBLE NOT NULL,
                     mean_patience DOUBLE NOT NULL,
-                    mean_charity DOUBLE NOT NULL,
                     std DOUBLE NOT NULL,
                     age INTEGER NOT NULL,
                     children INTEGER NOT NULL,
@@ -38,7 +36,6 @@ public class Main {
                     goods INTEGER NOT NULL,
                     future_goods INTEGER NOT NULL,
                     self_goods INTEGER NOT NULL,
-                    char_goods INTEGER NOT NULL,
                     pref INTEGER NOT NULL,
                     utility DOUBLE NOT NULL
                     )
@@ -52,6 +49,7 @@ public class Main {
         int maxA = 10;
         int maxB = 10;
         int maxC = 10;
+<<<<<<< HEAD
         int maxD = 10;
         double sd = 0.05;
         double altruism = 1;//(double) 1 / maxA;
@@ -70,6 +68,20 @@ public class Main {
                             //int percent = (c * maxA * maxB) + (b * maxA) + a;
                         }
                         System.out.println(a + " " + b + " " + c + " " + d);
+=======
+        double sd = 0.05;
+        double altruism = (double) 1 / maxA;
+        double patience = (double) 1 / maxB;
+        for (int a = 0; a < maxA + 1; a++) {
+            for (int b = 0; b < maxB + 1; b++) {
+                for (int c = 0; c < maxC + 1; c++) {
+                    Economy economy = new Economy(1000, random, statement, altruism * a, patience * b, sd, 5);
+                    for (int i = 0; i < 30; i++) {
+                        economy.period();
+                        //economy.print();
+                        //System.out.println(altruism * a + " " + patience * b + " " + sd * c);
+                        //int percent = (c * maxA * maxB) + (b * maxA) + a;
+>>>>>>> parent of 3cae6a7 (commit 23)
                     }
                     conn.commit();
                 }
