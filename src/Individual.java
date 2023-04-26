@@ -11,6 +11,7 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
     double goods;
     int goodsSelf;
     int goodsFuture;
+    int goodsCharity;
     double altruism;
     double charity;
     double patience;
@@ -33,6 +34,7 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         goods = g;
         goodsSelf = 0;
         goodsFuture = 0;
+        goodsCharity = 0;
         children = new HashSet<>();
         dataString = new StringBuilder();
         //siblings = new HashSet<>();
@@ -145,6 +147,7 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
             familyMember.currentUtility += utility;
         } else if (Objects.equals(decision, "Charity")) {
             currentUtility = charity * utility;
+            goodsCharity += good;
             charityCase.addGoods(good);
             charityCase.currentUtility += utility;
         }
@@ -250,6 +253,7 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
                 + ", " + charity
                 + ", " + goodsFuture
                 + ", " + goodsSelf
+                + ", " + goodsCharity
                 + ", " + preference
                 + ", " + currentUtility;
     }
