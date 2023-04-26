@@ -25,10 +25,6 @@ public class Main {
                     clan INTEGER NOT NULL,
                     family INTEGER NOT NULL,
                     generation INTEGER NOT NULL,
-                    mean_altruism DOUBLE NOT NULL,
-                    mean_patience DOUBLE NOT NULL,
-                    mean_charity DOUBLE NOT NULL,
-                    std DOUBLE NOT NULL,
                     age INTEGER NOT NULL,
                     children INTEGER NOT NULL,
                     prev_children INTEGER NOT NULL,
@@ -51,28 +47,28 @@ public class Main {
         }
         int maxA = 1;
         int maxB = 1;
-        int maxC = 6;
-        int maxD = 2;
+        int maxC = 50;
+        int maxD = 50;
         double sd = 0.05;
         double altruism = 0.636;
         double patience = 0.697;
         double charity = 0.256;
-        int sampleSize = 100;
+        int sampleSize = 5;
         for (int a = 0; a < maxA; a++) {
             for (int b = 0; b < maxB; b++) {
                 for (int c = 0; c < maxC; c++) {
                     for (int d = 0; d < maxD; d++) {
-                        Economy economy = new Economy((int) Math.pow(sampleSize, c), random, statement, altruism, patience, charity, sd, 5, ((c - 1) * maxD) + d);
-                        for (int i = 0; i < 5; i++) {
+                        Economy economy = new Economy((int) (sampleSize * Math.pow(c, 2)), random, statement, altruism, patience, charity, sd, 5, ((c - 1) * maxD) + d);
+                        for (int i = 0; i < 50; i++) {
                             economy.period();
                             //economy.print();
                             //System.out.println(altruism * a + " " + patience * b + " " + sd * c);
                             //int percent = (c * maxA * maxB) + (b * maxA) + a;
-                            
                         }
-                        conn.commit();
                         System.out.println(a + " " + b + " " + c + " " + d);
+
                     }
+                    conn.commit();
                 }                
             }
         }

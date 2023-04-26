@@ -1,3 +1,4 @@
+#%%
 import sqlite3
 import pandas as pd
 import numpy as np
@@ -22,11 +23,19 @@ cursor.execute(f"""
             WHERE age > 0
             GROUP BY sim_id, period
         """)
+#%%
 df = pd.read_sql(f"""
             SELECT * FROM sample_pops
             """, conn)
 samples = df.query("sample_size != 0").set_index("sim_id")["sample_size"].to_dict()
 df["sample_size"] = df["sim_id"].apply(lambda x: samples[x])
-vars = df.groupby(["sample_size"]).var().drop(["period"], axis=1).reset_index()
-plt.plot(vars["sample_size"], vars["pop_growth"])
+vars = df.groupby("sim_id").var().groupby("sample_size").var().drop("period", axis=1).reset_index()
+print(vars)
+fig, axs = plt.subplots(2, 2)
+axs[0, 0].plot(vars["sample_size"], vars["pop_growth"])
+axs[0, 1].plot(vars["sample_size"], vars["savings_rate"])
+axs[1, 0].plot(vars["sample_size"], vars["cons_rate"])
+axs[1, 1].plot(vars["sample_size"], vars["char_rate"])
+axs[0, 0].setx_scale('log')
 plt.show()
+# %%
