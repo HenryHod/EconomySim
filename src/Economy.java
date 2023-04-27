@@ -53,10 +53,6 @@ public class Economy {
         StringBuilder dataString = new StringBuilder("""
                 INSERT INTO simulations (sim_id,
                                         period,
-                                        mean_altruism,
-                                        mean_patience,
-                                        mean_charity,
-                                        std,
                                         goods,
                                         prev_children,
                                         clan,
@@ -92,10 +88,6 @@ public class Economy {
                 familyMember.updateData("(" +
                                 simId + ", " +
                                 periodCount + ", " +
-                                meanAltruism + ", " +
-                                meanPatience + ", " +
-                                meanCharity + ", " +
-                                std + ", " +
                                 familyMember.goods + ", " +
                                 familyMember.children.size() + ", ");
             }
@@ -134,10 +126,6 @@ public class Economy {
                 dataString = new StringBuilder("""
                         INSERT INTO simulations (sim_id,
                                                 period,
-                                                mean_altruism,
-                                                mean_patience,
-                                                mean_charity,
-                                                std,
                                                 goods,
                                                 prev_children,
                                                 clan,
