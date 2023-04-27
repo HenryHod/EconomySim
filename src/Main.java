@@ -57,7 +57,7 @@ public class Main {
         double altruism = 0.636;
         double patience = 0.697;
         double charity = 0.256;
-        int sampleSize = 100;
+        int sampleSize = 10;
         for (int a = 0; a < maxA; a++) {
             for (int b = 0; b < maxB; b++) {
                 for (int c = 0; c < maxC; c++) {
