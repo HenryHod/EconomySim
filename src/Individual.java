@@ -143,6 +143,7 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
             goodsFuture += good;
         } else if (Objects.equals(decision, "Family")) {
             currentUtility += altruism * utility;
+            goodsCharity += good;
             familyMember.addGoods(good);
             familyMember.currentUtility += utility;
         } else if (Objects.equals(decision, "Charity")) {
@@ -293,13 +294,25 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         currentSelfUtility = 0;
     }
     public boolean startedPeriod() {
-        return dataString.length() == 0;
+        return goodsSelf + goodsFuture +  goodsCharity == 0;
     }
     public void updateData(String str) {
         dataString.append(str);
     }
     public StringBuilder getDataString() {
         return dataString;
+    }
+    public int getChildren() {
+        return children.size();
+    }
+    public int futGoods() {
+        return goodsFuture;
+    }
+    public int selfGoods() {
+        return goodsSelf;
+    }
+    public int charGoods() {
+        return goodsCharity;
     }
     @Override
     public Iterator<Integer> iterator() {
