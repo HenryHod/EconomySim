@@ -7,10 +7,6 @@ public class Economy {
     private int totalGoods;
     private Statement statement;
     private int periodCount;
-    private final double meanAltruism;
-    private final double meanPatience;
-    private final double meanCharity;
-    private final double std;
     public final int maxAge;
     public final int simId;
     public double r;
@@ -24,10 +20,6 @@ public class Economy {
         familyIndexes = new ArrayList<>();
         totalGoods = 0;
         periodCount = 0;
-        meanAltruism = altruism;
-        meanPatience = patience;
-        meanCharity = charity;
-        std = sd;
         maxAge = age;
         simId = id;
         statement = stmt;
@@ -152,6 +144,93 @@ public class Economy {
             statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
         }
     }
+    public void aggPeriod() throws SQLException {
+        totalGoods = 0;
+        int totalFutureGoods = 0;
+        int totalSelfGoods = 0;
+        int totalCharityGoods = 0;
+        int totalPrevChildren = 0;
+        int totalChildren = 0;
+        periodCount++;
+        resetIndexes();
+        r = random.nextDouble(0.5);
+        StringBuilder dataString = new StringBuilder("""
+                                    INSERT INTO economies (sim_id,
+                                        period,
+                                        goods,
+                                        prev_children,
+                                        children,
+                                        future_goods,
+                                        self_goods,
+                                        char_goods)
+                                    VALUES""");
+        int initDataLength = dataString.length();
+
+        //int percent = 0;
+        while (familyIndexes.size() > 0) {
+            //System.out.println(familyIndexes.size());
+            /*
+            int currentPercent = 100 - (int) (((double) familyIndexes.size() / families.size()) * 100);
+            if (currentPercent % 100 == 0 && currentPercent != percent) {
+                percent = 100 - (int) (((double) familyIndexes.size() / families.size()) * 100);
+                System.out.println("Period " + periodCount + " " + percent + "% Completed");
+            }
+             */
+            Family family = families.get(familyIndexes.get(random.nextInt(familyIndexes.size())));
+            Clan clan = family.getOne(random);
+            Individual familyMember = clan.getOne(random);
+            if (familyMember.startedPeriod()) {
+                totalGoods += familyMember.goods;
+                totalPrevChildren += familyMember.getChildren();
+            }
+            familyMember.individualTurn(this, family, clan);
+            //System.out.println("Previous Goods: " + previousGoods[0] + " " + previousGoods[1] + " Current Goods: " + familyMember.goods[0] + " " + familyMember.goods[1]);
+            if (!familyMember.hasGoods()) {
+                //System.out.println((end - start)/1000.0);
+                familyMember.addPeriod();
+                totalChildren += familyMember.getChildren();
+                totalFutureGoods += familyMember.futGoods();
+                totalSelfGoods += familyMember.selfGoods();
+                totalCharityGoods += familyMember.charGoods();
+                familyMember.resetData();
+                familyMember.resetGoods();
+                familyMember.resetUtility();
+                clan.removeIndex(familyMember.id);
+                if (!familyMember.hasGoods() || familyMember.age >= maxAge) {
+                    //System.out.println(family + " " + familyMember.clan + " " + familyMember.id + " Deleted");
+                    family.remove(familyMember);
+                    //System.out.println(family + " " + familyMember.clan + " Deleted");
+                    if (family.living() <= 0) {
+                        //System.out.println(family + " Deleted");
+                        families.remove(familyMember.family);
+                        familyIndexes.remove(familyMember.family);
+                        removeIndex(familyMember.family);
+                    }
+                }
+                if (!clan.hasGoods()) {
+                    family.removeIndex(familyMember.clan);
+                    if (!family.hasGoods()) {
+                        removeIndex(familyMember.family);
+                    }
+                }
+            }
+        }
+        //System.out.println(dataString.substring(0, dataString.length() - 2));
+        if (families.size() > 0 && dataString.length() > initDataLength) {
+            dataString.append(
+                            simId + ", " +
+                            periodCount + ", " +
+                            totalGoods + ", " +
+                            totalPrevChildren + ", " +
+                            totalChildren + ", " +
+                            totalFutureGoods + ", " +
+                            totalSelfGoods + ", " +
+                            totalCharityGoods + "), "
+            );
+            statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
+        }
+
+    }
     public void add(Integer family,Individual i) {families.get(family).add(i);
     }
     public Family get(Integer i) {
@@ -165,25 +244,6 @@ public class Economy {
         System.out.println(families.keySet().stream().mapToInt(key -> families.get(key).living()).sum());
         System.out.println(totalGoods);
         System.out.println(families.keySet().stream().mapToDouble(key -> families.get(key).totalUtility()).sum());
-    }
-    private void recordData(Individual i) throws SQLException {
-        statement.executeUpdate("""
-                                INSERT INTO simulations (period,
-                                                        family,
-                                                        generation,
-                                                        children,
-                                                        altruism,
-                                                        charity,
-                                                        good1,
-                                                        good2,
-                                                        good1_pref,
-                                                        good2_pref,
-                                                        utility)
-                                VALUES (
-                                """
-                                + periodCount + ", "
-                                + i.dataEntry() + ")"
-                                );
     }
     public int currentPeriod() {
         return periodCount;

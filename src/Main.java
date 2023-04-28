@@ -15,7 +15,8 @@ public class Main {
             statement = conn.createStatement();
             // Do something with the Connection
             statement.executeUpdate("""
-                    DROP TABLE IF EXISTS simulations
+                    DROP TABLE IF EXISTS simulations;
+                    DROP TABLE IF EXISTS economies
                     """);
             statement.executeUpdate("""
                     CREATE TABLE simulations (
@@ -36,8 +37,18 @@ public class Main {
                     self_goods INTEGER NOT NULL,
                     char_goods INTEGER NOT NULL,
                     pref INTEGER NOT NULL,
-                    utility DOUBLE NOT NULL
-                    )
+                    utility DOUBLE NOT NULL);
+                    
+                    CREATE TABLE economies (
+                    id INTEGER PRIMARY KEY,
+                    sim_id INTEGER NOT NULL,
+                    period INTEGER NOT NULL,
+                    goods INTEGER NOT NULL,
+                    prev_children INTEGER NOT NULL,
+                    children INTEGER NOT NULL,
+                    future_goods INTEGER NOT NULL,
+                    self_goods INTEGER NOT NULL,
+                    char_goods INTEGER NOT NULL)
                     """);
         } catch (SQLException ex) {
             // handle any errors
@@ -45,29 +56,29 @@ public class Main {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-        int maxA = 1;
-        int maxB = 1;
-        int maxC = 50;
-        int maxD = 50;
+        int maxA = 10;
+        int maxB = 10;
+        int maxC = 10;
+        int maxD = 5;
         double sd = 0.05;
-        double altruism = 0.636;
-        double patience = 0.697;
-        double charity = 0.256;
+        double altruism = (double) 1 / maxA;
+        double patience = (double) 1 / maxB;
+        double charity = (double) 1 / maxC;
         int sampleSize = 5;
-        for (int a = 0; a < maxA; a++) {
-            for (int b = 0; b < maxB; b++) {
-                for (int c = 0; c < maxC; c++) {
-                    for (int d = 0; d < maxD; d++) {
-                        Economy economy = new Economy((int) (sampleSize * Math.pow(c, 2)), random, statement, altruism, patience, charity, sd, 5, ((c - 1) * maxD) + d);
-                        for (int i = 0; i < 50; i++) {
-                            economy.period();
+        for (int a = 0; a < maxA + 1; a++) {
+            for (int b = 0; b < maxB + 1; b++) {
+                for (int c = 0; c < maxC + 1; c++) {
+                    for (int d = 0; d < maxD + 1; d++) {
+                        Economy economy = new Economy(2000, random, statement, altruism * a, patience * b, charity * c, sd, 5, d);
+                        for (int i = 0; i < 10; i++) {
+                            economy.aggPeriod();
                             //economy.print();
                             //System.out.println(altruism * a + " " + patience * b + " " + sd * c);
                             //int percent = (c * maxA * maxB) + (b * maxA) + a;
                         }
-                        System.out.println(a + " " + b + " " + c + " " + d);
 
                     }
+                    System.out.println(a + " " + b + " " + c);
                     conn.commit();
                 }                
             }
