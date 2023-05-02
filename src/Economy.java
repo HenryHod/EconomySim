@@ -4,12 +4,16 @@ import java.sql.Statement;
 import java.util.*;
 
 public class Economy {
-    private int totalGoods;
+    public int totalGoods;
     private Statement statement;
     private int periodCount;
     public final int maxAge;
     public final int simId;
     public double r;
+    public double meanAltruism;
+    public double meanPatience;
+    public double meanCharity;
+    public double std;
     public Random random;
     private HashMap<Integer, Family> families;
     private ArrayList<Integer> familyIndexes;
@@ -22,10 +26,14 @@ public class Economy {
         periodCount = 0;
         maxAge = age;
         simId = id;
+        meanAltruism = altruism;
+        meanPatience = patience;
+        meanCharity = charity;
+        std = sd;
         statement = stmt;
         for (int i = 0; i < size; i++) {
             double goods = (double) childCost * rand.nextInt(1, 11);
-            families.put(i, new Family(new Individual(rand, i, goods, 0, altruism, patience, sd)));
+            families.put(i, new Family(new Individual(rand, i, goods, 0, altruism, patience, charity, sd)));
             familyIndexes.add(i);
             totalGoods += goods;
         }
@@ -151,18 +159,23 @@ public class Economy {
         int totalCharityGoods = 0;
         int totalPrevChildren = 0;
         int totalChildren = 0;
+        int population = 0;
         periodCount++;
         resetIndexes();
-        r = random.nextDouble(0.5);
+        r = random.nextDouble(0.2);
         StringBuilder dataString = new StringBuilder("""
                                     INSERT INTO economies (sim_id,
                                         period,
+                                        population,
                                         goods,
                                         prev_children,
                                         children,
                                         future_goods,
                                         self_goods,
-                                        char_goods)
+                                        char_goods,
+                                        mean_altruism,
+                                        mean_patience,
+                                        mean_charity)
                                     VALUES""");
         int initDataLength = dataString.length();
 
@@ -179,9 +192,10 @@ public class Economy {
             Family family = families.get(familyIndexes.get(random.nextInt(familyIndexes.size())));
             Clan clan = family.getOne(random);
             Individual familyMember = clan.getOne(random);
-            if (familyMember.startedPeriod()) {
+            if (!familyMember.startedPeriod()) {
                 totalGoods += familyMember.goods;
                 totalPrevChildren += familyMember.getChildren();
+                familyMember.startPeriod();
             }
             familyMember.individualTurn(this, family, clan);
             //System.out.println("Previous Goods: " + previousGoods[0] + " " + previousGoods[1] + " Current Goods: " + familyMember.goods[0] + " " + familyMember.goods[1]);
@@ -192,9 +206,11 @@ public class Economy {
                 totalFutureGoods += familyMember.futGoods();
                 totalSelfGoods += familyMember.selfGoods();
                 totalCharityGoods += familyMember.charGoods();
+                population++;
                 familyMember.resetData();
                 familyMember.resetGoods();
                 familyMember.resetUtility();
+                familyMember.endPeriod();
                 clan.removeIndex(familyMember.id);
                 if (!familyMember.hasGoods() || familyMember.age >= maxAge) {
                     //System.out.println(family + " " + familyMember.clan + " " + familyMember.id + " Deleted");
@@ -216,18 +232,22 @@ public class Economy {
             }
         }
         //System.out.println(dataString.substring(0, dataString.length() - 2));
-        if (families.size() > 0 && dataString.length() > initDataLength) {
-            dataString.append(
+        if (families.size() > 0) {
+            dataString.append("( " +
                             simId + ", " +
                             periodCount + ", " +
+                            population + ", " +
                             totalGoods + ", " +
                             totalPrevChildren + ", " +
                             totalChildren + ", " +
                             totalFutureGoods + ", " +
                             totalSelfGoods + ", " +
-                            totalCharityGoods + "), "
+                            totalCharityGoods + ", " +
+                            meanAltruism + ", " +
+                            meanPatience + ", " +
+                            meanCharity + ")"
             );
-            statement.executeUpdate(String.valueOf(dataString.substring(0, dataString.length() - 2)));
+            statement.executeUpdate(String.valueOf(dataString));
         }
 
     }

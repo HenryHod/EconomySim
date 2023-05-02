@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 public class Main {
     public static void main(String[] args) throws SQLException {
-        Random random = new Random();
+        Random random = new Random(10);
         //Class.forName("org.sqlite.JDBC");
         Connection conn = null;
         Statement statement = null;
@@ -43,12 +43,16 @@ public class Main {
                     id INTEGER PRIMARY KEY,
                     sim_id INTEGER NOT NULL,
                     period INTEGER NOT NULL,
+                    population INTEGER NOT NULL,
                     goods INTEGER NOT NULL,
                     prev_children INTEGER NOT NULL,
                     children INTEGER NOT NULL,
                     future_goods INTEGER NOT NULL,
                     self_goods INTEGER NOT NULL,
-                    char_goods INTEGER NOT NULL)
+                    char_goods INTEGER NOT NULL,
+                    mean_altruism DOUBLE NOT NULL,
+                    mean_patience DOUBLE NOT NULL,
+                    mean_charity DOUBLE NOT NULL)
                     """);
         } catch (SQLException ex) {
             // handle any errors
@@ -58,27 +62,29 @@ public class Main {
         }
         int maxA = 10;
         int maxB = 10;
-        int maxC = 10;
-        int maxD = 5;
+        int maxC = 5;
+        int maxD = 3;
         double sd = 0.05;
         double altruism = (double) 1 / maxA;
         double patience = (double) 1 / maxB;
         double charity = (double) 1 / maxC;
         int sampleSize = 5;
+        int numFinished = 0;
         for (int a = 0; a < maxA + 1; a++) {
             for (int b = 0; b < maxB + 1; b++) {
                 for (int c = 0; c < maxC + 1; c++) {
                     for (int d = 0; d < maxD + 1; d++) {
                         Economy economy = new Economy(2000, random, statement, altruism * a, patience * b, charity * c, sd, 5, d);
-                        for (int i = 0; i < 10; i++) {
+                        for (int i = 0; i < 50; i++) {
                             economy.aggPeriod();
                             //economy.print();
                             //System.out.println(altruism * a + " " + patience * b + " " + sd * c);
                             //int percent = (c * maxA * maxB) + (b * maxA) + a;
                         }
-
+                        numFinished++;
+                        //System.out.println((a + " " + b + " " + c + " " + d) + " \r");
+                        System.out.print((Math.round((100 * (double) numFinished / ((maxA + 1) * (maxB + 1) * (maxC + 1) * (maxD + 1))) * 100.0) / 100.0) + "% Done \r");
                     }
-                    System.out.println(a + " " + b + " " + c);
                     conn.commit();
                 }                
             }
