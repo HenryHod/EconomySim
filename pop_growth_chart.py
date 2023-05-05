@@ -48,25 +48,35 @@ print(ca_data)
 x = df["savings_rate"]
 y = df["cons_rate"]
 z = df["char_rate"]
-xi = np.linspace(min(x), max(x), 300)
-yi = np.linspace(min(y), max(y), 300)
+xi = np.linspace(min(x), max(x), 1000)
+yi = np.linspace(min(y), max(y), 1000)
 X, Y = np.meshgrid(xi, yi)
-Z = np.nan_to_num(gaussian_filter(griddata((x, y), z, (X.flatten(), Y.flatten()), 'linear').reshape(300, 300), sigma = 0), nan = 0)
-alt = np.nan_to_num(gaussian_filter(griddata((x, y), df["mean_altruism"], (X.flatten(), Y.flatten()), 'linear').reshape(300, 300), sigma = 0), nan = 0)
-pat = np.nan_to_num(gaussian_filter(griddata((x, y), df["mean_patience"], (X.flatten(), Y.flatten()), 'linear').reshape(300, 300), sigma = 0), nan = 0)
-char = np.nan_to_num(gaussian_filter(griddata((x, y), df["mean_charity"], (X.flatten(), Y.flatten()), 'linear').reshape(300, 300), sigma = 0), nan = 0)
-pop = np.nan_to_num(gaussian_filter(griddata((x, y), df["pop_growth"], (X.flatten(), Y.flatten()), 'linear').reshape(300, 300), sigma = 0), nan = 0)
+Z = np.nan_to_num(gaussian_filter(griddata((x, y), z, (X.flatten(), Y.flatten()), 'linear').reshape(1000, 1000), sigma = 0), nan = 0)
+alt = np.nan_to_num(gaussian_filter(griddata((x, y), df["mean_altruism"], (X.flatten(), Y.flatten()), 'nearest').reshape(1000, 1000), sigma = 1), nan = 0)
+pat = np.nan_to_num(gaussian_filter(griddata((x, y), df["mean_patience"], (X.flatten(), Y.flatten()), 'nearest').reshape(1000, 1000), sigma = 1), nan = 0)
+char = np.nan_to_num(gaussian_filter(griddata((x, y), df["mean_charity"], (X.flatten(), Y.flatten()), 'nearest').reshape(1000, 1000), sigma = 1), nan = 0)
+pop = np.nan_to_num(gaussian_filter(griddata((x, y), df["pop_growth"], (X.flatten(), Y.flatten()), 'linear').reshape(1000, 1000), sigma = 0), nan = 0)
 #data.append(go.Surface(x = X, y = Y, z = pop, surfacecolor=save , colorscale="ice_r"))
 countries = [[0.01, 0.046, 0.9]]
 #%%
 us_coord = {"x":[], "y":[], "z":[], "pop":[]}
 errors = []
+pop_mean = np.mean(pop.flatten())
+pop_std = np.std(pop.flatten())
+x_mean = np.mean(X.flatten())
+x_std = np.std(X.flatten())
+y_mean = np.mean(Y.flatten())
+y_std = np.std(Y.flatten())
+z_mean = np.mean(Z.flatten())
+z_std = np.std(Z.flatten())
+
+
 for i, row in us_data.reset_index().iterrows():
     errors.append(np.sqrt(
-        (pop.flatten() - row["Pop Growth"]) ** 2 +
-        (X.flatten() - row["Save Rate"]) ** 2 +
-        (Y.flatten() - row["Cons Rate"]) ** 2 +
-        (Z.flatten() - row["Char Rate"]) ** 2))
+        ((pop.flatten() - row["Pop Growth"]) / pop_std) ** 2 +
+        ((X.flatten() - row["Save Rate"]) / x_std) ** 2 +
+        ((Y.flatten() - row["Cons Rate"]) / y_std) ** 2 +
+        ((Z.flatten() - row["Char Rate"]) / z_std) ** 2))
 avg_error = np.mean(np.array(errors), axis=0)
 min_indexes = np.argpartition(avg_error, 50)[:50]
 min_index = np.where(avg_error == avg_error.min())
@@ -77,7 +87,7 @@ data.append(go.Scatter3d(x=us_data["Save Rate"], y=us_data["Cons Rate"], z=us_da
 data.append(go.Scatter3d(x=ca_data["Save Rate"], y=ca_data["Cons Rate"], z=ca_data["Char Rate"], marker=dict(color="orange", size=4)))
 #data.append(go.Scatter3d(x=us_coord["x"], y=us_coord["y"], z=us_coord["pop"], mode='markers'))
 data.append(go.Scatter3d(x=df["savings_rate"], y=df["cons_rate"], z=df["char_rate"], mode='markers',marker=dict(color="blue", size=4), opacity=0.5))
-#data.append(go.Scatter3d(x=X.flatten()[min_indexes], y=Y.flatten()[min_indexes], z=Z.flatten()[min_indexes]))
+data.append(go.Scatter3d(x=X.flatten()[min_indexes], y=Y.flatten()[min_indexes], z=Z.flatten()[min_indexes]))
 #data.append(go.Surface(x=X, y=Y, z=Z, surfacecolor=pop))
 #data.append(go.Scatter3d(x=[save[min_index], save[min_index]], y=[cons[min_index], cons[min_index]], z=[char.min(), char.max()], mode='lines', line=dict(color='red')))
 #print(us_coord["x"][min_index], us_coord["y"][min_index], us_coord["z"][min_index])
