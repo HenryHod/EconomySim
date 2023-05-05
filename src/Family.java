@@ -29,7 +29,7 @@ public class Family implements Iterable<Integer> {
         //System.out.println("after: " + individuals.size());
         //System.out.println(i.id);
     }
-    public void remove(Individual i) {
+    public void remove(Economy economy, Individual i) {
         Clan currentClan = clans.get(i.clan);
         for (Integer childIndex: i) {
             if (currentClan.contains(childIndex)) {
@@ -38,7 +38,7 @@ public class Family implements Iterable<Integer> {
                 child.clan = size;
                 clans.put(child.clan, new Clan(child));
                 clanIndexes.add(child.clan);
-                i.inheritance(child);
+                i.inheritance(economy, child);
                 child.resetParent();
                 size++;
                 for (Integer grandchildIndex : child) {
