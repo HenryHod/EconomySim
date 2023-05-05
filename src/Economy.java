@@ -5,6 +5,7 @@ import java.util.*;
 
 public class Economy {
     public int totalGoods;
+    private int population;
     private Statement statement;
     private int periodCount;
     public final int maxAge;
@@ -22,7 +23,6 @@ public class Economy {
         random = rand;
         families = new HashMap<>();
         familyIndexes = new ArrayList<>();
-        totalGoods = 0;
         periodCount = 0;
         maxAge = age;
         simId = id;
@@ -31,11 +31,11 @@ public class Economy {
         meanCharity = charity;
         std = sd;
         statement = stmt;
+        population = size;
         for (int i = 0; i < size; i++) {
-            double goods = (double) childCost * rand.nextInt(1, 11);
+            double goods = (double) childCost * rand.nextInt(1, 21);
             families.put(i, new Family(new Individual(rand, i, goods, 0, altruism, patience, charity, sd)));
             familyIndexes.add(i);
-            totalGoods += goods;
         }
     }
     public Individual getOne(Individual self) {
@@ -105,7 +105,7 @@ public class Economy {
                 clan.removeIndex(familyMember.id);
                 if (!familyMember.hasGoods() || familyMember.age >= maxAge) {
                     //System.out.println(family + " " + familyMember.clan + " " + familyMember.id + " Deleted");
-                    family.remove(familyMember);
+                    family.remove(this, familyMember);
                     //System.out.println(family + " " + familyMember.clan + " Deleted");
                     if (family.living() <= 0) {
                         //System.out.println(family + " Deleted");
@@ -153,23 +153,19 @@ public class Economy {
         }
     }
     public void aggPeriod() throws SQLException {
-        totalGoods = 0;
+        int startPopulation = population;
         int totalFutureGoods = 0;
         int totalSelfGoods = 0;
         int totalCharityGoods = 0;
-        int totalPrevChildren = 0;
-        int totalChildren = 0;
-        int population = 0;
         periodCount++;
         resetIndexes();
         r = random.nextDouble(0.2);
         StringBuilder dataString = new StringBuilder("""
                                     INSERT INTO economies (sim_id,
                                         period,
+                                        start_population,
                                         population,
                                         goods,
-                                        prev_children,
-                                        children,
                                         future_goods,
                                         self_goods,
                                         char_goods,
@@ -193,8 +189,6 @@ public class Economy {
             Clan clan = family.getOne(random);
             Individual familyMember = clan.getOne(random);
             if (!familyMember.startedPeriod()) {
-                totalGoods += familyMember.goods;
-                totalPrevChildren += familyMember.getChildren();
                 familyMember.startPeriod();
             }
             familyMember.individualTurn(this, family, clan);
@@ -202,19 +196,18 @@ public class Economy {
             if (!familyMember.hasGoods()) {
                 //System.out.println((end - start)/1000.0);
                 familyMember.addPeriod();
-                totalChildren += familyMember.getChildren();
                 totalFutureGoods += familyMember.futGoods();
                 totalSelfGoods += familyMember.selfGoods();
                 totalCharityGoods += familyMember.charGoods();
-                population++;
                 familyMember.resetData();
                 familyMember.resetGoods();
                 familyMember.resetUtility();
                 familyMember.endPeriod();
                 clan.removeIndex(familyMember.id);
                 if (!familyMember.hasGoods() || familyMember.age >= maxAge) {
+                    population -= 1;
                     //System.out.println(family + " " + familyMember.clan + " " + familyMember.id + " Deleted");
-                    family.remove(familyMember);
+                    family.remove(this, familyMember);
                     //System.out.println(family + " " + familyMember.clan + " Deleted");
                     if (family.living() <= 0) {
                         //System.out.println(family + " Deleted");
@@ -236,22 +229,24 @@ public class Economy {
             dataString.append("( " +
                             simId + ", " +
                             periodCount + ", " +
+                            startPopulation + ", " +
                             population + ", " +
-                            totalGoods + ", " +
-                            totalPrevChildren + ", " +
-                            totalChildren + ", " +
-                            totalFutureGoods + ", " +
+                            ((totalFutureGoods / (1 + r)) + totalSelfGoods + totalCharityGoods) + ", " +
+                            (totalFutureGoods / (1 + r)) + ", " +
                             totalSelfGoods + ", " +
                             totalCharityGoods + ", " +
                             meanAltruism + ", " +
                             meanPatience + ", " +
                             meanCharity + ")"
             );
+            //System.out.println("Goods for Next Period " + totalFutureGoods);
             statement.executeUpdate(String.valueOf(dataString));
         }
 
     }
-    public void add(Integer family,Individual i) {families.get(family).add(i);
+    public void add(Integer family,Individual i) {
+        population++;
+        families.get(family).add(i);
     }
     public Family get(Integer i) {
         return families.get(i);
@@ -276,5 +271,8 @@ public class Economy {
     }
     public void removeIndex(Integer index) {
         familyIndexes.remove(index);
+    }
+    public double rv() {
+        return random.nextGaussian(0, 1);
     }
 }
