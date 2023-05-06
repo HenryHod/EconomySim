@@ -49,7 +49,13 @@ centroid = (np.mean(us_data['Pop Growth']), np.mean(us_data['Save Rate']), np.me
 ca_data = pd.read_csv("ca_data.csv")
 #print(ca_data)
 #%%
-for start_group in np.unique(full_df["max_start"]):
+cent_errors = []
+cp_errors = []
+cp_parameters = []
+smooth_errors = []
+smooth_parameters = []
+start_groups = np.unique(full_df["max_start"])
+for start_group in start_groups:
     df = full_df.query(f"max_start == {start_group}").reset_index()
     x = df["savings_rate"]
     y = df["cons_rate"]
@@ -96,43 +102,50 @@ for start_group in np.unique(full_df["max_start"]):
 
     avg_error_est = np.mean(np.array(errors_est), axis=0)
     min_indexes_est = np.argpartition(avg_error_est, 20)[:20]
-    mean_min_indexes = np.argpartition(mean_errors, 50)[:50]
-    print(np.mean(mean_errors[mean_min_indexes]))
-    print(np.mean(avg_error_est[min_indexes_est]))
-    print(np.mean(df["mean_altruism"][min_indexes_est]), np.mean(df["mean_patience"][min_indexes_est]), np.mean(df["mean_charity"][min_indexes_est]))
+    mean_min_indexes = np.argpartition(mean_errors, 20)[:20]
+    cent_errors.append(np.mean(mean_errors[mean_min_indexes]))
+    cp_errors.append(np.mean(avg_error_est[min_indexes_est]))
+    cp_parameters.append([np.mean(df["mean_altruism"][min_indexes_est]), np.mean(df["mean_patience"][min_indexes_est]), np.mean(df["mean_charity"][min_indexes_est])])
     avg_error = np.mean(np.array(errors), axis=0)
-    min_indexes = np.argpartition(avg_error, 50)[:50]
+    min_indexes = np.argpartition(avg_error, 20)[:20]
     min_index = np.where(avg_error == avg_error.min())
-    print(np.mean(avg_error[min_indexes]))
-    print(np.std(alt.flatten()[min_indexes]), np.std(pat.flatten()[min_indexes])) 
-    print(np.mean(alt.flatten()[min_indexes]), np.mean(pat.flatten()[min_indexes]), np.mean(char.flatten()[min_indexes]))
-    data.append(go.Scatter3d(x=us_data["Save Rate"], y=us_data["Cons Rate"], z=us_data["Char Rate"], marker=dict(color="red", size=5)))
-    data.append(go.Scatter3d(x=ca_data["Save Rate"], y=ca_data["Cons Rate"], z=ca_data["Char Rate"], marker=dict(color="orange", size=5)))
-    #data.append(go.Scatter3d(x=us_coord["x"], y=us_coord["y"], z=us_coord["pop"], mode='markers'))
-    data.append(go.Scatter3d(x=df["savings_rate"], y=df["cons_rate"], z=df["char_rate"], mode='markers',marker=dict(color=df["pop_growth"], size=3, colorscale="Reds"), opacity=0.5,
-                            hovertemplate = "Savings Rate: %{x}<br>" +
-                            "Consumption Rate: %{y}<br>" +
-                            "Charity Rate %{z}<br>" +
-                            "Population Growth: %{marker.color:,}" +
-                            "<extra></extra>",
-                            ))
-    data.append(go.Scatter3d(x=X.flatten()[min_indexes], y=Y.flatten()[min_indexes], z=Z.flatten()[min_indexes], mode='markers',marker=dict(color=pop.flatten()[min_indexes], size=4), opacity=0.5,
-    hovertemplate = "Savings Rate: %{x}<br>" +
-                            "Consumption Rate: %{y}<br>" +
-                            "Charity Rate %{z}<br>" +
-                            "Population Growth: %{marker.color:,}" +
-                            "<extra></extra>"))
-    #data.append(go.Scatter3d(x=df["savings_rate"][mean_min_indexes], y=df["cons_rate"][mean_min_indexes], z=df["char_rate"][mean_min_indexes], mode='markers',marker=dict(color="purple", size=4), opacity=0.5))
-    data.append(go.Scatter3d(x=[centroid[1]], y=[centroid[2]], z=[centroid[3]], mode='markers',marker=dict(color="green", size=6), opacity=0.5))
+    smooth_errors.append(np.mean(avg_error[min_indexes]))
+    #print(np.std(alt.flatten()[min_indexes]), np.std(pat.flatten()[min_indexes])) 
+    smooth_parameters.append([np.mean(alt.flatten()[min_indexes]), np.mean(pat.flatten()[min_indexes]), np.mean(char.flatten()[min_indexes])])
     #data.append(go.Scatter3d(x=X.flatten()[min_indexes], y=Y.flatten()[min_indexes], z=Z.flatten()[min_indexes]))
     #data.append(go.Surface(x=X, y=Y, z=Z, surfacecolor=pop))
     #data.append(go.Scatter3d(x=[save[min_index], save[min_index]], y=[cons[min_index], cons[min_index]], z=[char.min(), char.max()], mode='lines', line=dict(color='red')))
     #print(us_coord["x"][min_index], us_coord["y"][min_index], us_coord["z"][min_index])
-    #%%
-fig = go.Figure(data=data)
-fig.update_layout(font=dict(size=14), scene = dict(xaxis_title="Savings Rate", yaxis_title="Consumption Rate", zaxis_title="Charity Rate"))
-iplot(fig)
+#%%
+data.append(go.Scatter3d(x=us_data["Save Rate"], y=us_data["Cons Rate"], z=us_data["Char Rate"], marker=dict(color="red", size=5)))
+data.append(go.Scatter3d(x=ca_data["Save Rate"], y=ca_data["Cons Rate"], z=ca_data["Char Rate"], marker=dict(color="orange", size=5)))
+#data.append(go.Scatter3d(x=us_coord["x"], y=us_coord["y"], z=us_coord["pop"], mode='markers'))
+data.append(go.Scatter3d(x=df["savings_rate"], y=df["cons_rate"], z=df["char_rate"], mode='markers',marker=dict(color=df["pop_growth"], size=3, colorscale="Reds"), opacity=0.5,
+                        hovertemplate = "Savings Rate: %{x}<br>" +
+                        "Consumption Rate: %{y}<br>" +
+                        "Charity Rate %{z}<br>" +
+                        "Population Growth: %{marker.color:,}" +
+                        "<extra></extra>",
+                        ))
+data.append(go.Scatter3d(x=X.flatten()[min_indexes], y=Y.flatten()[min_indexes], z=Z.flatten()[min_indexes], mode='markers',marker=dict(color=pop.flatten()[min_indexes], size=4), opacity=0.5,
+hovertemplate = "Savings Rate: %{x}<br>" +
+                        "Consumption Rate: %{y}<br>" +
+                        "Charity Rate %{z}<br>" +
+                        "Population Growth: %{marker.color:,}" +
+                        "<extra></extra>"))
+#data.append(go.Scatter3d(x=df["savings_rate"][mean_min_indexes], y=df["cons_rate"][mean_min_indexes], z=df["char_rate"][mean_min_indexes], mode='markers',marker=dict(color="purple", size=4), opacity=0.5))
+data.append(go.Scatter3d(x=[centroid[1]], y=[centroid[2]], z=[centroid[3]], mode='markers',marker=dict(color="green", size=6), opacity=0.5))
+#fig = go.Figure(data=data)
+#fig.update_layout(font=dict(size=14), scene = dict(xaxis_title="Savings Rate", yaxis_title="Consumption Rate", zaxis_title="Charity Rate"))
+#iplot(fig)
 # %%
-max_df = df.groupby(["mean_altruism", "mean_patience", "mean_charity"]).mean().reset_index()
-fig2 = go.Figure(data=[go.Scatter3d(x=max_df["mean_altruism"], y=max_df["mean_patience"], z=max_df["pop_growth"], mode="markers", marker=dict(color=max_df["total"]))])
+fig, axs = plt.subplots(1, 2)
+axs[0].plot(start_groups, smooth_errors)
+axs[0].set_title("Error")
+axs[1].plot(start_groups, smooth_parameters, label=["Altruism", "Patience", "Charity"])
+axs[1].set_title("Parameters")
+plt.legend()
+plt.show()
+#max_df = df.groupby(["mean_altruism", "mean_patience", "mean_charity"]).mean().reset_index()
+#fig2 = go.Figure(data=[go.Scatter3d(x=max_df["mean_altruism"], y=max_df["mean_patience"], z=max_df["pop_growth"], mode="markers", marker=dict(color=max_df["total"]))])
 # %%
