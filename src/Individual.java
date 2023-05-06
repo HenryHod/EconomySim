@@ -168,12 +168,12 @@ public class Individual implements Comparable<Individual>, Iterable<Integer>{
         //System.out.println(goods[0] + " " + goods[1]);
         //System.out.println("child utility: " + altruism * basicUtility(economy.childCost) + " self utility: " + utilityDiff(economy.childCost));
         if ((goods >= economy.childCost &&
-                (altruism * basicUtility(economy.childCost) + economy.rv() >= utilityDiff(economy.childCost))) &&
+                (altruism * basicUtility(economy.childCost) >= utilityDiff(economy.childCost))) &&
                 (age < economy.maxAge && age >= 1)) {
             //System.out.println("child utility: " + altruism * basicUtility(economy.childCost) + "self for same goods " + utilityDiff(economy.childCost));
             //System.out.println("family size: " + economy.get(family).size());
             //System.out.println("Before: " + economy.get(family).size());
-            Individual child = new Individual(economy.random, family, this, (double) economy.childCost * economy.random.nextInt(1, 21), economy.get(family).size() + 1, economy.currentPeriod(), economy.meanAltruism, economy.meanPatience, economy.meanCharity,  economy.std);
+            Individual child = new Individual(economy.random, family, this, (double) economy.childCost * economy.random.nextInt(1, economy.maxStart + 1), economy.get(family).size() + 1, economy.currentPeriod(), economy.meanAltruism, economy.meanPatience, economy.meanCharity,  economy.std);
             addChild(child);
             economy.add(family, child);
             //System.out.println("After: " + economy.get(family).size());
