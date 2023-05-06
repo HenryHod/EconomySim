@@ -15,11 +15,12 @@ public class Economy {
     public double meanPatience;
     public double meanCharity;
     public double std;
+    public int maxStart;
     public Random random;
     private HashMap<Integer, Family> families;
     private ArrayList<Integer> familyIndexes;
     public final int childCost  = 20;
-    public Economy(int size, Random rand, Statement stmt, double altruism, double patience, double charity, double sd, int age, int id) {
+    public Economy(int size, Random rand, Statement stmt, double altruism, double patience, double charity, double sd, int start, int age, int id) {
         random = rand;
         families = new HashMap<>();
         familyIndexes = new ArrayList<>();
@@ -30,10 +31,11 @@ public class Economy {
         meanPatience = patience;
         meanCharity = charity;
         std = sd;
+        maxStart = start;
         statement = stmt;
         population = size;
         for (int i = 0; i < size; i++) {
-            double goods = (double) childCost * rand.nextInt(1, 21);
+            double goods = (double) childCost * rand.nextInt(1, maxStart + 1);
             families.put(i, new Family(new Individual(rand, i, goods, 0, altruism, patience, charity, sd)));
             familyIndexes.add(i);
         }
@@ -154,6 +156,7 @@ public class Economy {
     }
     public void aggPeriod() throws SQLException {
         int startPopulation = population;
+        ArrayList<Double> allWealth = new ArrayList<>();
         int totalFutureGoods = 0;
         int totalSelfGoods = 0;
         int totalCharityGoods = 0;
@@ -171,7 +174,8 @@ public class Economy {
                                         char_goods,
                                         mean_altruism,
                                         mean_patience,
-                                        mean_charity)
+                                        mean_charity,
+                                        max_start)
                                     VALUES""");
         int initDataLength = dataString.length();
 
@@ -215,6 +219,8 @@ public class Economy {
                         familyIndexes.remove(familyMember.family);
                         removeIndex(familyMember.family);
                     }
+                } else {
+                    allWealth.add(familyMember.goods);
                 }
                 if (!clan.hasGoods()) {
                     family.removeIndex(familyMember.clan);
@@ -237,7 +243,8 @@ public class Economy {
                             totalCharityGoods + ", " +
                             meanAltruism + ", " +
                             meanPatience + ", " +
-                            meanCharity + ")"
+                            meanCharity + ", " +
+                            maxStart + ")"
             );
             //System.out.println("Goods for Next Period " + totalFutureGoods);
             statement.executeUpdate(String.valueOf(dataString));
@@ -274,5 +281,18 @@ public class Economy {
     }
     public double rv() {
         return random.nextGaussian(0, 1);
+    }
+    public double gini(ArrayList<Double> allWealth) {
+        double totalWealth = 0;
+        double totalDiff = 0;
+        for (Double w1: allWealth) {
+            totalWealth += w1;
+            for (Double w2: allWealth) {
+                totalDiff += Math.abs(w1 - w2);
+            }
+        }
+        return totalDiff / (2 * Math.pow(population, 2) * (totalWealth / population));
+
+
     }
 }

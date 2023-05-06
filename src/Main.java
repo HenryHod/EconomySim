@@ -51,7 +51,8 @@ public class Main {
                     char_goods INTEGER NOT NULL,
                     mean_altruism DOUBLE NOT NULL,
                     mean_patience DOUBLE NOT NULL,
-                    mean_charity DOUBLE NOT NULL)
+                    mean_charity DOUBLE NOT NULL,
+                    max_start INTEGER NOT NULL)
                     """);
         } catch (SQLException ex) {
             // handle any errors
@@ -59,14 +60,15 @@ public class Main {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
-        int maxA = 20;
-        int maxB = 10;
-        int maxC = 10;
-        int maxD = 1;
+        int maxA = 3;
+        int maxB = 3;
+        int maxC = 3;
+        int maxD = 14;
+        int maxE = 0;
         double sd = 0.05;
         double minChar = 0.1;
         double minPat = 0.1;
-        double altruism = (double) 0.9 / maxA;
+        double altruism = (double) 0.4 / maxA;
         double patience = (double) 0.3 / maxB;
         double charity = (double) 0.3 / maxC;
         int sampleSize = 5;
@@ -74,17 +76,19 @@ public class Main {
         for (int a = 0; a < maxA + 1; a++) {
             for (int b = 0; b < maxB + 1; b++) {
                 for (int c = 0; c < maxC + 1; c++) {
-                    for (int d = 0; d < maxD + 1; d++) {
-                        Economy economy = new Economy(5000, random, statement, altruism * a, minPat + patience * b, minChar + charity * c, sd, 5, d);
-                        for (int i = 0; i < 50; i++) {
-                            economy.aggPeriod();
-                            //economy.print();
-                            //System.out.println(altruism * a + " " + patience * b + " " + sd * c);
-                            //int percent = (c * maxA * maxB) + (b * maxA) + a;
+                    for (int d = 1; d < maxD + 1; d++) {
+                        for (int e = 0; e < maxE + 1; e++) {
+                            Economy economy = new Economy(1000, random, statement, altruism * a, minPat + patience * b, minChar + charity * c, sd, d * 10, 5, e);
+                            for (int i = 0; i < 20; i++) {
+                                economy.aggPeriod();
+                                //economy.print();
+                                //System.out.println(altruism * a + " " + patience * b + " " + sd * c);
+                                //int percent = (c * maxA * maxB) + (b * maxA) + a;
+                            }
+                            numFinished++;
                         }
-                        numFinished++;
                         //System.out.println((a + " " + b + " " + c + " " + d) + " \r");
-                        System.out.print((Math.round((100 * (double) numFinished / ((maxA + 1) * (maxB + 1) * (maxC + 1) * (maxD + 1))) * 100.0) / 100.0) + "% Done \r");
+                        System.out.print((Math.round((100 * (double) numFinished / ((maxA + 1) * (maxB + 1) * (maxC + 1) * (maxD))) * 100.0) / 100.0) + "% Done \r");
                     }
                     conn.commit();
                 }                
